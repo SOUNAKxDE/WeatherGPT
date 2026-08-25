@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>WeatherGPT — AI Weather Intelligence & Disaster Response</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= SPLASH / LOADING VIEW ================= -->
+<section class="view-splash" id="view-splash" aria-hidden="true">
+  <div class="splash-inner">
+    <img src="logo.png" alt="WeatherGPT" class="splash-logo">
+    <span class="splash-name">WeatherGPT</span>
+  </div>
+</section>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+<symbol id="i-satellite" viewBox="0 0 24 24"><path d="m13.5 6.5-3.148-3.148a1.205 1.205 0 0 0-1.704 0L6.352 5.648a1.205 1.205 0 0 0 0 1.704L9.5 10.5" />
+  <path d="M16.5 7.5 19 5" />
+  <path d="m17.5 10.5 3.148 3.148a1.205 1.205 0 0 1 0 1.704l-2.296 2.296a1.205 1.205 0 0 1-1.704 0L13.5 14.5" />
+  <path d="M9 21a6 6 0 0 0-6-6" />
+  <path d="M9.352 10.648a1.205 1.205 0 0 0 0 1.704l2.296 2.296a1.205 1.205 0 0 0 1.704 0l4.296-4.296a1.205 1.205 0 0 0 0-1.704l-2.296-2.296a1.205 1.205 0 0 0-1.704 0z" /></symbol>
+<symbol id="i-trending-up" viewBox="0 0 24 24"><path d="M16 7h6v6" />
+  <path d="m22 7-8.5 8.5-5-5L2 17" /></symbol>
+<symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" />
+  <path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" /></symbol>
+<symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+  <path d="M12 9v4" />
+  <path d="M12 17h.01" /></symbol>
+<symbol id="i-backpack" viewBox="0 0 24 24"><path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+  <path d="M8 10h8" />
+  <path d="M8 18h8" />
+  <path d="M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6" />
+  <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /></symbol>
+<symbol id="i-wheat" viewBox="0 0 24 24"><path d="M2 22 16 8" />
+  <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+  <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+  <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z" />
+  <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z" />
+  <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z" />
+  <path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z" />
+  <path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z" /></symbol>
+<symbol id="i-footprints" viewBox="0 0 24 24"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" />
+  <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" />
+  <path d="M16 17h4" />
+  <path d="M4 13h4" /></symbol>
+<symbol id="i-plane" viewBox="0 0 24 24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></symbol>
+<symbol id="i-waves" viewBox="0 0 24 24"><path d="M2 12q2.5 2 5 0t5 0 5 0 5 0" />
+  <path d="M2 19q2.5 2 5 0t5 0 5 0 5 0" />
+  <path d="M2 5q2.5 2 5 0t5 0 5 0 5 0" /></symbol>
+<symbol id="i-party-popper" viewBox="0 0 24 24"><path d="M5.8 11.3 2 22l10.7-3.79" />
+  <path d="M4 3h.01" />
+  <path d="M22 8h.01" />
+  <path d="M15 2h.01" />
+  <path d="M22 20h.01" />
+  <path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10" />
+  <path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17" />
+  <path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7" />
+  <path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z" /></symbol>
+<symbol id="i-flask-conical" viewBox="0 0 24 24"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" />
+  <path d="M6.453 15h11.094" />
+  <path d="M8.5 2h7" /></symbol>
+<symbol id="i-landmark" viewBox="0 0 24 24"><path d="M10 18v-7" />
+  <path d="M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z" />
+  <path d="M14 18v-7" />
+  <path d="M18 18v-7" />
+  <path d="M3 22h18" />
+  <path d="M6 18v-7" /></symbol>
+<symbol id="i-ambulance" viewBox="0 0 24 24"><path d="M10 10H6" />
+  <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+  <path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 16.382 8H14" />
+  <path d="M8 8v4" />
+  <path d="M9 18h6" />
+  <circle cx="17" cy="18" r="2" />
+  <circle cx="7" cy="18" r="2" /></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+  <path d="M16 3.128a4 4 0 0 1 0 7.744" />
+  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+  <circle cx="9" cy="7" r="4" /></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+  <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol>
+<symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+  <circle cx="12" cy="10" r="3" /></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" />
+  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+  <path d="M2 12h20" /></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+  <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+<symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" /></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
+  <path d="M15 5.764v15" />
+  <path d="M9 3.236v15" /></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0" />
+  <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /></symbol>
+<symbol id="i-bar-chart-3" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" />
+  <path d="M18 17V9" />
+  <path d="M13 17V5" />
+  <path d="M8 17v-3" /></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 5h16" />
+  <path d="M4 12h16" />
+  <path d="M4 19h16" /></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" />
+  <path d="m6 6 12 12" /></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 19v3" />
+  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+  <rect x="9" y="2" width="6" height="13" rx="3" /></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
+  <path d="m21.854 2.147-10.94 10.939" /></symbol>
+<symbol id="i-cloud-rain" viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+  <path d="M16 14v6" />
+  <path d="M8 14v6" />
+  <path d="M12 16v6" /></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" /></symbol>
+<symbol id="i-wind" viewBox="0 0 24 24"><path d="M12.8 19.6A2 2 0 1 0 14 16H2" />
+  <path d="M17.5 8a2.5 2.5 0 1 1 2 4H2" />
+  <path d="M9.8 4.4A2 2 0 1 1 11 8H2" /></symbol>
+<symbol id="i-tent" viewBox="0 0 24 24"><path d="M3.5 21 14 3" />
+  <path d="M20.5 21 10 3" />
+  <path d="M15.5 21 12 15l-3.5 6" />
+  <path d="M2 21h20" /></symbol>
+<symbol id="i-umbrella" viewBox="0 0 24 24"><path d="M12 13v7a2 2 0 0 0 4 0" />
+  <path d="M12 2v2" />
+  <path d="M20.992 13a1 1 0 0 0 .97-1.274 10.284 10.284 0 0 0-19.923 0A1 1 0 0 0 3 13z" /></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></symbol>
+<symbol id="i-thermometer" viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" /></symbol>
+<symbol id="i-snowflake" viewBox="0 0 24 24"><path d="m10 20-1.25-2.5L6 18" />
+  <path d="M10 4 8.75 6.5 6 6" />
+  <path d="m14 20 1.25-2.5L18 18" />
+  <path d="m14 4 1.25 2.5L18 6" />
+  <path d="m17 21-3-6h-4" />
+  <path d="m17 3-3 6 1.5 3" />
+  <path d="M2 12h6.5L10 9" />
+  <path d="m20 10-1.5 2 1.5 2" />
+  <path d="M22 12h-6.5L14 15" />
+  <path d="m4 10 1.5 2L4 14" />
+  <path d="m7 21 3-6-1.5-3" />
+  <path d="m7 3 3 6h4" /></symbol>
+<symbol id="i-luggage" viewBox="0 0 24 24"><path d="M6 20a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2" />
+  <path d="M8 18V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14" />
+  <path d="M10 20h4" />
+  <circle cx="16" cy="20" r="2" />
+  <circle cx="8" cy="20" r="2" /></symbol>
+<symbol id="i-cloud-fog" viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+  <path d="M16 17H7" />
+  <path d="M17 21H9" /></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" />
+  <path d="M12 6v6l4 2" /></symbol>
+<symbol id="i-bar-chart" viewBox="0 0 24 24"><path d="M5 21v-6" />
+  <path d="M12 21V9" />
+  <path d="M19 21V3" /></symbol>
+<symbol id="i-calculator" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" />
+  <line x1="8" x2="16" y1="6" y2="6" />
+  <line x1="16" x2="16" y1="14" y2="18" />
+  <path d="M16 10h.01" />
+  <path d="M12 10h.01" />
+  <path d="M8 10h.01" />
+  <path d="M12 14h.01" />
+  <path d="M8 14h.01" />
+  <path d="M12 18h.01" />
+  <path d="M8 18h.01" /></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></symbol>
+<symbol id="i-radio-tower" viewBox="0 0 24 24"><path d="M4.9 16.1C1 12.2 1 5.8 4.9 1.9" />
+  <path d="M7.8 4.7a6.14 6.14 0 0 0-.8 7.5" />
+  <circle cx="12" cy="9" r="2" />
+  <path d="M16.2 4.8c2 2 2.26 5.11.8 7.47" />
+  <path d="M19.1 1.9a9.96 9.96 0 0 1 0 14.1" />
+  <path d="M9.5 18h5" />
+  <path d="m8 22 4-11 4 11" /></symbol>
+<symbol id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+  <path d="M12 9v4" />
+  <path d="M12 17h.01" /></symbol>
+<symbol id="i-hand" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" />
+  <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" />
+  <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" />
+  <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" /></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" />
+  <path d="M12 2v2" />
+  <path d="M12 20v2" />
+  <path d="m4.93 4.93 1.41 1.41" />
+  <path d="m17.66 17.66 1.41 1.41" />
+  <path d="M2 12h2" />
+  <path d="M20 12h2" />
+  <path d="m6.34 17.66-1.41 1.41" />
+  <path d="m19.07 4.93-1.41 1.41" /></symbol>
+<symbol id="i-cloud-sun" viewBox="0 0 24 24"><path d="M12 2v2" />
+  <path d="m4.93 4.93 1.41 1.41" />
+  <path d="M20 12h2" />
+  <path d="m19.07 4.93-1.41 1.41" />
+  <path d="M15.947 12.65a4 4 0 0 0-5.925-4.128" />
+  <path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z" /></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></symbol>
+<symbol id="i-cloud-lightning" viewBox="0 0 24 24"><path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973" />
+  <path d="m13 12-3 5h4l-3 5" /></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+<symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></symbol>
+<symbol id="i-droplets" viewBox="0 0 24 24"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z" />
+  <path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97" /></symbol>
+<symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+  <path d="m9 12 2 2 4-4" /></symbol>
+<symbol id="i-building-2" viewBox="0 0 24 24"><path d="M10 12h4" />
+  <path d="M10 8h4" />
+  <path d="M14 21v-3a2 2 0 0 0-4 0v3" />
+  <path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" />
+  <path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></symbol>
+<symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" />
+  <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+  <circle cx="18" cy="5" r="3" /></symbol>
+<symbol id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol>
+<symbol id="i-siren" viewBox="0 0 24 24"><path d="M7 18v-6a5 5 0 1 1 10 0v6" />
+  <path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z" />
+  <path d="M21 12h1" />
+  <path d="M18.5 4.5 18 5" />
+  <path d="M2 12h1" />
+  <path d="M12 2v1" />
+  <path d="m4.929 4.929.707.707" />
+  <path d="M12 12v6" /></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335" />
+  <path d="m9 11 3 3L22 4" /></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol>
+<symbol id="i-edit-3" viewBox="0 0 24 24"><path d="M13 21h8" />
+  <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /></symbol>
+<symbol id="i-log-out" viewBox="0 0 24 24"><path d="m16 17 5-5-5-5" />
+  <path d="M21 12H9" />
+  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+  <circle cx="12" cy="12" r="3" /></symbol>
+<symbol id="i-bell-ring" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0" />
+  <path d="M22 8c0-2.3-.8-4.3-2-6" />
+  <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+  <path d="M4 2C2.8 3.7 2 5.7 2 8" /></symbol>
+<symbol id="i-cloud-sun-rain" viewBox="0 0 24 24"><path d="M12 2v2" />
+  <path d="m4.93 4.93 1.41 1.41" />
+  <path d="M20 12h2" />
+  <path d="m19.07 4.93-1.41 1.41" />
+  <path d="M15.947 12.65a4 4 0 0 0-5.925-4.128" />
+  <path d="M3 20a5 5 0 1 1 8.9-4H13a3 3 0 0 1 2 5.24" />
+  <path d="M11 20v2" />
+  <path d="M7 19v2" /></symbol>
+<symbol id="i-circle-check-big" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335" />
+  <path d="m9 11 3 3L22 4" /></symbol>
+<symbol id="i-radio" viewBox="0 0 24 24"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></symbol>
+</svg>
+
+<!-- ================= LANGUAGE GATE VIEW ================= -->
+<section class="view" id="view-language">
+  <div class="lang-gate">
+    <button class="icon-btn lang-gate-back" id="langGateBack" aria-label="Back" hidden><svg class="icon-md"><use href="#i-x"></use></svg></button>
+    <img src="logo.png" alt="WeatherGPT" class="lang-gate-mark">
+    <h1 data-i18n="lang_gate_title">Choose your language</h1>
+    <p class="lang-gate-sub" data-i18n="lang_gate_sub">You can change this anytime from Settings.</p>
+    <div class="lang-grid" id="languageGrid"></div>
+  </div>
+</section>
+
+<!-- ================= LANDING VIEW ================= -->
+<section class="view" id="view-landing">
+  <header class="nav">
+    <div class="brand">
+      <img src="logo.png" alt="WeatherGPT" class="brand-mark">
+      <span class="brand-name">WeatherGPT</span>
+    </div>
+    <nav class="nav-links" id="navLinks">
+      <a href="#features" data-i18n="nav_platform">Platform</a>
+      <a href="#pillars" data-i18n="nav_intelligence">Intelligence</a>
+      <a href="#personas" data-i18n="nav_personas">Who it's for</a>
+    </nav>
+    <div class="nav-cta">
+      <button class="btn btn-ghost" id="btnNavLogin" data-i18n="nav_login">Log in</button>
+      <button class="btn btn-primary" id="btnNavStart" data-i18n="nav_start">Get started</button>
+    </div>
+    <button class="icon-btn nav-hamburger" id="btnNavHamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <svg class="icon-md"><use href="#i-menu"></use></svg>
+    </button>
+  </header>
+
+  <main class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow" data-i18n="hero_eyebrow">Predict · Prepare · Protect · Respond</p>
+      <h1><span data-i18n="hero_title_1">The weather has a lot to say.</span><br><span class="accent-text" data-i18n="hero_title_2">WeatherGPT tells you what it means for you.</span></h1>
+      <p class="hero-sub" data-i18n="hero_sub">One conversational intelligence layer over radar, satellite, lightning, hydrology and emergency data — turning raw atmosphere into plain-language decisions for citizens, farmers, travelers, researchers and disaster command centres.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" id="btnHeroStart" data-i18n="hero_cta_start">Start with WeatherGPT</button>
+        <button class="btn btn-outline btn-lg" id="btnHeroDemo" data-i18n="hero_cta_demo">See it answer a question ↓</button>
+      </div>
+      <div class="hero-trust">
+        <div><strong>4</strong><span data-i18n="hero_trust_1">Intelligence pillars</span></div>
+        <div><strong>18+</strong><span data-i18n="hero_trust_2">User personas</span></div>
+        <div><strong>24/7</strong><span data-i18n="hero_trust_3">Mesh-resilient SOS</span></div>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="radar-scope">
+        <div class="radar-rings"></div>
+        <div class="radar-sweep"></div>
+        <div class="radar-blip b1"></div>
+        <div class="radar-blip b2"></div>
+        <div class="radar-blip b3"></div>
+        <div class="scope-readout">
+          <span id="scopeTemp">31.4°C</span>
+          <small>Kolkata · Live conditions</small>
+        </div>
+      </div>
+      <div class="hero-chips">
+        <div class="hero-chip"><span class="icon-tile warn"><svg class="icon"><use href="#i-cloud-lightning"></use></svg></span> Storm cell tracked · <strong>12 min out</strong></div>
+        <div class="hero-chip"><span class="icon-tile"><svg class="icon"><use href="#i-waves"></use></svg></span> Flood risk: <strong>Moderate</strong>, Ward 7</div>
+        <div class="hero-chip"><span class="icon-tile safe"><svg class="icon"><use href="#i-check"></use></svg></span> Safe run window: <strong>6:10–7:20 AM</strong></div>
+      </div>
+    </div>
+  </main>
+
+  <section class="demo-strip" id="demoStrip">
+    <div class="demo-card">
+      <span class="demo-q" data-i18n="demo_question">“Should I carry an umbrella when I leave at 6?”</span>
+      <span class="demo-a" data-i18n="demo_answer">Rain probability climbs to 68% after 5:40 PM near you — pack it, and leave 10 minutes earlier to beat the heaviest band.</span>
+    </div>
+  </section>
+
+  <section class="section" id="pillars">
+    <h2 class="section-title" data-i18n="pillars_title">Four inseparable pillars</h2>
+    <p class="section-sub" data-i18n="pillars_sub">Every feature in WeatherGPT lives inside one of these — from a citizen's umbrella question to a command centre's rescue route.</p>
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="icon-tile lg"><svg class="icon-lg"><use href="#i-satellite"></use></svg></div>
+        <h3 data-i18n="pillar_weather_title">Weather Intelligence</h3>
+        <p>Real-time observations, forecasts, radar, satellite and environmental conditions — accessible by conversation.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="icon-tile lg"><svg class="icon-lg"><use href="#i-trending-up"></use></svg></div>
+        <h3 data-i18n="pillar_predictive_title">Predictive Intelligence</h3>
+        <p>NWP fusion, nowcasting, thunderstorm and lightning tracking, heavy-rainfall and inundation probability.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="icon-tile lg"><svg class="icon-lg"><use href="#i-compass"></use></svg></div>
+        <h3 data-i18n="pillar_impact_title">Impact Intelligence</h3>
+        <p>Exposure, infrastructure effects, cascading hazard chains, route, shelter and resource implications.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="icon-tile lg warn"><svg class="icon-lg"><use href="#i-alert-triangle"></use></svg></div>
+        <h3 data-i18n="pillar_response_title">Response Intelligence</h3>
+        <p>Alerts, command dashboards, mesh-resilient SOS, incident prioritization and rescue routing.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <h2 class="section-title" data-i18n="features_title">One assistant, every kind of weather question</h2>
+    <div class="feature-grid">
+      <div class="feature-card"><h4>Conversational core</h4><p>Ask naturally, in text or voice, in English or regional languages. Follow-up questions carry context.</p></div>
+      <div class="feature-card"><h4>Nowcasting</h4><p>15/30/60/120-minute thunderstorm, lightning and rainfall projections with confidence bands.</p></div>
+      <div class="feature-card"><h4>Flood & inundation</h4><p>Rainfall + terrain + drainage + river level fusion to estimate extent, depth and time-to-impact.</p></div>
+      <div class="feature-card"><h4>Cascading risk</h4><p>Cyclone → rainfall → flood → road blockage → power/network loss, modeled as a live graph.</p></div>
+      <div class="feature-card"><h4>Mesh SOS</h4><p>Battery-aware emergency signalling that relays through nearby devices when networks fail.</p></div>
+      <div class="feature-card"><h4>Command centre</h4><p>Hazard, impact, incident and resource views for authorized disaster-management officers.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="personas">
+    <h2 class="section-title" data-i18n="personas_title">Built for every persona in the chain</h2>
+    <div class="persona-row">
+      <span class="persona-pill"><svg class="icon"><use href="#i-backpack"></use></svg> Student / commuter</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-wheat"></use></svg> Farmer</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-footprints"></use></svg> Runner</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-plane"></use></svg> Traveler</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-waves"></use></svg> Beachgoer</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-party-popper"></use></svg> Event planner</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-flask-conical"></use></svg> Researcher</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-landmark"></use></svg> Disaster officer</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-siren"></use></svg> Responder</span>
+      <span class="persona-pill"><svg class="icon"><use href="#i-users"></use></svg> Parent</span>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="brand"><img src="logo.png" alt="WeatherGPT" class="brand-mark small"><span class="brand-name">WeatherGPT</span></div>
+    <p data-i18n="footer_tagline">Decision support, not an autonomous authority. Official warnings and dispatch remain with the relevant institution.</p>
+    <p class="copyright">© 2026 WeatherGPT — Prototype interface for demonstration purposes.</p>
+  </footer>
+</section>
+
+<!-- ================= AUTH VIEW ================= -->
+<section class="view view-auth" id="view-auth" hidden>
+  <div class="auth-shell">
+    <div class="auth-side">
+      <div class="brand"><img src="logo.png" alt="WeatherGPT" class="brand-mark"><span class="brand-name">WeatherGPT</span></div>
+      <h2 data-i18n="auth_side_title">Weather intelligence, on your terms.</h2>
+      <p data-i18n="auth_side_desc">Sign in to save locations, get personalized advisories, and enable emergency SOS features.</p>
+      <ul class="auth-points">
+        <li><svg class="icon"><use href="#i-lock"></use></svg> <span data-i18n="auth_point_1">Your emergency data is encrypted and access-controlled</span></li>
+        <li><svg class="icon"><use href="#i-map-pin"></use></svg> <span data-i18n="auth_point_2">Location used only to personalize your forecast</span></li>
+        <li><svg class="icon"><use href="#i-globe"></use></svg> <span data-i18n="auth_point_3">Available in English and regional languages</span></li>
+      </ul>
+    </div>
+    <div class="auth-panel">
+
+      <!-- Step 1: identifier -->
+      <div class="auth-step" id="step-identifier">
+        <button class="auth-back" id="backToLanding" aria-label="Back">←</button>
+        <h3 data-i18n="auth_welcome_title">Log in or sign up</h3>
+        <p class="auth-hint" data-i18n="auth_welcome_sub">We'll send a one-time code to verify it's you — no password to remember.</p>
+
+        <div class="segmented" id="authModeSwitch">
+          <button class="seg-btn active" data-mode="phone" data-i18n="tab_phone">Phone</button>
+          <button class="seg-btn" data-mode="email" data-i18n="tab_email">Email</button>
+        </div>
+
+        <label class="field" id="phoneField">
+          <span>Mobile number</span>
+          <div class="input-with-prefix">
+            <span class="prefix">+91</span>
+            <input type="tel" id="inputPhone" inputmode="numeric" maxlength="10" placeholder="98765 43210" autocomplete="tel">
+          </div>
+        </label>
+
+        <label class="field" id="emailField" hidden>
+          <span>Email address</span>
+          <input type="email" id="inputEmail" placeholder="you@example.com" autocomplete="email">
+        </label>
+
+        <p class="field-error" id="identifierError" hidden></p>
+
+        <button class="btn btn-primary btn-block" id="btnSendOtp" data-i18n="btn_send_otp">Send OTP</button>
+
+        <div class="auth-divider"><span>or continue with</span></div>
+        <div class="social-row">
+          <button class="btn btn-social">Google</button>
+          <button class="btn btn-social">Apple</button>
+        </div>
+        <p class="auth-legal">By continuing you agree to WeatherGPT's Terms and acknowledge the Privacy Notice, including consent settings for SOS location sharing.</p>
+      </div>
+
+      <!-- Step 2: OTP -->
+      <div class="auth-step" id="step-otp" hidden>
+        <button class="auth-back" id="backToIdentifier" aria-label="Back">←</button>
+        <h3 data-i18n="otp_title">Enter the code</h3>
+        <p class="auth-hint">We sent a 6-digit code to <strong id="otpDestination">+91 98765 43210</strong>. <button class="link-btn" id="btnEditDestination">Edit</button></p>
+
+        <div class="otp-row" id="otpRow">
+          <input class="otp-box" maxlength="1" inputmode="numeric" autocomplete="one-time-code" data-i="0">
+          <input class="otp-box" maxlength="1" inputmode="numeric" data-i="1">
+          <input class="otp-box" maxlength="1" inputmode="numeric" data-i="2">
+          <input class="otp-box" maxlength="1" inputmode="numeric" data-i="3">
+          <input class="otp-box" maxlength="1" inputmode="numeric" data-i="4">
+          <input class="otp-box" maxlength="1" inputmode="numeric" data-i="5">
+        </div>
+        <p class="field-error" id="otpError" hidden>That code didn't match. Try again or resend.</p>
+        <p class="otp-demo-hint">Prototype mode — enter any 6 digits to continue.</p>
+
+        <button class="btn btn-primary btn-block" id="btnVerifyOtp" data-i18n="btn_verify_otp">Verify & continue</button>
+        <p class="resend-row">Didn't get it? <button class="link-btn" id="btnResend" disabled>Resend in <span id="resendTimer">30</span>s</button></p>
+      </div>
+
+      <!-- Step 3: quick profile -->
+      <div class="auth-step" id="step-profile" hidden>
+        <h3 data-i18n="profile_title">A couple of quick things</h3>
+        <p class="auth-hint" data-i18n="profile_sub">This helps us personalize your home screen. You can change all of this later.</p>
+
+        <label class="field">
+          <span data-i18n="label_name">What should we call you?</span>
+          <input type="text" id="inputName" placeholder="Your name">
+        </label>
+
+        <label class="field">
+          <span data-i18n="label_location">Primary location</span>
+          <input type="text" id="inputLocation" placeholder="e.g. Kolkata, West Bengal" value="Kolkata, West Bengal">
+        </label>
+
+        <span class="field-label" data-i18n="label_role">I'm mainly here as a</span>
+        <div class="role-grid" id="roleGrid">
+          <button class="role-card active" data-role="citizen"><svg class="icon"><use href="#i-home"></use></svg><span data-i18n="role_citizen">Citizen</span></button>
+          <button class="role-card" data-role="farmer"><svg class="icon"><use href="#i-wheat"></use></svg><span data-i18n="role_farmer">Farmer</span></button>
+          <button class="role-card" data-role="traveler"><svg class="icon"><use href="#i-plane"></use></svg><span data-i18n="role_traveler">Traveler</span></button>
+          <button class="role-card" data-role="researcher"><svg class="icon"><use href="#i-flask-conical"></use></svg><span data-i18n="role_researcher">Researcher</span></button>
+          <button class="role-card" data-role="official"><svg class="icon"><use href="#i-landmark"></use></svg><span data-i18n="role_official">Official</span></button>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="btnFinishProfile" data-i18n="btn_finish_profile">Enter WeatherGPT</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= APP SHELL ================= -->
+<section class="view view-app" id="view-app" hidden>
+  <div class="app-shell">
+
+    <!-- Mobile top bar -->
+    <div class="mobile-topbar">
+      <button class="icon-btn" id="btnOpenSidebar" aria-label="Open menu"><svg class="icon-md"><use href="#i-menu"></use></svg></button>
+      <div class="brand small"><img src="logo.png" alt="WeatherGPT" class="brand-mark small"><span class="brand-name">WeatherGPT</span></div>
+      <div class="mobile-topbar-actions">
+        <button class="icon-btn js-settings-trigger" id="btnSettingsMobile" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><svg class="icon-md"><use href="#i-settings"></use></svg></button>
+        <button class="icon-btn sos-mini" id="btnMobileSOS" aria-label="SOS">SOS</button>
+      </div>
+    </div>
+
+    <div class="sidebar-scrim" id="sidebarScrim"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <div class="brand"><img src="logo.png" alt="WeatherGPT" class="brand-mark"><span class="brand-name">WeatherGPT</span></div>
+        <button class="icon-btn js-settings-trigger" id="btnSettingsSidebar" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><svg class="icon-md"><use href="#i-settings"></use></svg></button>
+        <button class="icon-btn only-mobile" id="btnCloseSidebar" aria-label="Close menu"><svg class="icon-md"><use href="#i-x"></use></svg></button>
+      </div>
+
+      <button class="new-chat-btn" id="btnNewChat">
+        <span data-i18n="side_new_chat">+ New chat</span>
+      </button>
+
+      <nav class="side-nav" id="sideNav">
+        <button class="side-link active" data-view="chat"><svg class="icon"><use href="#i-message-circle"></use></svg><span data-i18n="side_chat">Chat</span></button>
+        <button class="side-link" data-view="today"><svg class="icon"><use href="#i-cloud-sun"></use></svg><span data-i18n="side_forecast">Today's Forecast</span></button>
+        <button class="side-link" data-view="map"><svg class="icon"><use href="#i-map"></use></svg><span data-i18n="side_map">Map & Hazards</span></button>
+        <button class="side-link" data-view="alerts"><svg class="icon"><use href="#i-bell"></use></svg><span data-i18n="side_alerts">Alerts</span> <span class="badge" id="alertBadge">3</span></button>
+        <button class="side-link" data-view="plan"><svg class="icon"><use href="#i-compass"></use></svg><span data-i18n="side_plan">Plan</span></button>
+        <button class="side-link" data-view="climate" id="navClimate" hidden><svg class="icon"><use href="#i-bar-chart-3"></use></svg><span data-i18n="side_climate">Climate & Research</span></button>
+        <button class="side-link" data-view="command" id="navCommand" hidden><svg class="icon"><use href="#i-landmark"></use></svg><span data-i18n="side_command">Command Centre</span></button>
+        <button class="side-link sos-link" data-view="sos"><svg class="icon"><use href="#i-siren"></use></svg><span data-i18n="side_sos">Emergency SOS</span></button>
+      </nav>
+
+      <div class="chat-history" id="chatHistory">
+        <p class="side-section-label">Recent chats</p>
+        <div id="chatHistoryList"></div>
+      </div>
+
+      <button class="side-link profile-link" data-view="profile" id="profileLink">
+        <span class="avatar" id="sidebarAvatar">K</span>
+        <span class="profile-meta">
+          <strong id="sidebarName">Guest User</strong>
+          <small id="sidebarLocation">Kolkata, WB</small>
+        </span>
+      </button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- ===== TODAY'S FORECAST ===== -->
+      <section class="panel" id="panel-today" hidden>
+        <div class="panel-header">
+          <div>
+            <h1 id="homeGreeting">Good afternoon, Traveler</h1>
+            <p class="muted" id="homeDate">Monday, 24 August 2026</p>
+          </div>
+          <div class="location-switch">
+            <button class="chip-btn" id="btnLocationSwitch"><svg class="icon-sm"><use href="#i-map-pin"></use></svg> <span id="currentLocationLabel">Kolkata, West Bengal</span> <svg class="icon-sm"><use href="#i-chevron-down"></use></svg></button>
+          </div>
+        </div>
+
+        <div class="hero-weather-card" id="heroWeatherCard">
+          <div class="hero-weather-main">
+            <div class="hwc-icon" id="hwcIcon"><svg class="icon-lg"><use href="#i-cloud-sun"></use></svg></div>
+            <div>
+              <div class="hwc-temp" id="hwcTemp">31°</div>
+              <div class="hwc-desc" id="hwcDesc">Partly cloudy, humid</div>
+              <div class="hwc-feels">Feels like <span id="hwcFeels">35°</span> · H:<span id="hwcHigh">33°</span> L:<span id="hwcLow">27°</span></div>
+            </div>
+          </div>
+          <div class="hwc-grid">
+            <div><small>Humidity</small><strong id="hwcHumidity">78%</strong></div>
+            <div><small>Wind</small><strong id="hwcWind">14 km/h</strong></div>
+            <div><small>Rain chance</small><strong id="hwcRain">62%</strong></div>
+            <div><small>UV Index</small><strong id="hwcUv">6 · High</strong></div>
+            <div><small>AQI</small><strong id="hwcAqi">96 · Moderate</strong></div>
+            <div><small>Pressure</small><strong id="hwcPressure">1006 hPa</strong></div>
+          </div>
+        </div>
+
+        <div class="section-row">
+          <h3 data-i18n="home_hourly_title">Next 24 hours</h3>
+        </div>
+        <div class="hourly-strip" id="hourlyStrip"></div>
+
+        <div class="section-row">
+          <h3 data-i18n="home_week_title">7-day outlook</h3>
+        </div>
+        <div class="daily-list" id="dailyList"></div>
+
+        <div class="section-row">
+          <h3 data-i18n="home_lifestyle_title">For you today</h3>
+          <span class="muted small">Based on your profile</span>
+        </div>
+        <div class="lifestyle-grid" id="lifestyleGrid"></div>
+
+        <div class="section-row">
+          <h3 data-i18n="home_alerts_preview_title">Active alerts near you</h3>
+          <button class="link-btn" data-goto="alerts"><span data-i18n="view_all">View all</span> →</button>
+        </div>
+        <div class="alerts-preview" id="alertsPreview"></div>
+      </section>
+
+      <!-- ===== CHAT ===== -->
+      <section class="panel panel-chat" id="panel-chat">
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-empty" id="chatEmpty">
+              <div class="chat-empty-mark"><img src="logo.png" alt="" class="chat-empty-mark-img"></div>
+              <h2>Ask WeatherGPT anything about the sky, the ground, or what to do next.</h2>
+              <div class="suggestion-grid" id="suggestionGrid">
+                <button class="suggestion-card">Will it rain on my way home at 6?</button>
+                <button class="suggestion-card">Which two hours are safest for a run today?</button>
+                <button class="suggestion-card">Should I irrigate my field tomorrow morning?</button>
+                <button class="suggestion-card">What's the weather risks in the next 3 hours?</button>
+                
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-wrap">
+            <div class="chat-input-bar">
+              <button class="icon-btn" id="btnVoice" title="Voice input"><svg class="icon-md"><use href="#i-mic"></use></svg></button>
+              <textarea id="chatInput" placeholder="Type here" rows="1"></textarea>
+              <button class="icon-btn" id="btnLangChat" title="Language"><svg class="icon-md"><use href="#i-globe"></use></svg></button>
+              <button class="send-btn" id="btnSend" aria-label="Send"><svg class="icon-sm"><use href="#i-send"></use></svg></button>
+            </div>
+            <p class="chat-disclaimer">WeatherGPT gives decision support based on available data — always follow official warnings during active emergencies.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MAP ===== -->
+      <section class="panel" id="panel-map" hidden>
+        <div class="panel-header">
+          <div><h1 data-i18n="map_title">Map & Hazard Layers</h1><p class="muted">Radar, satellite, lightning, flood and SOS overlays for your region</p></div>
+        </div>
+        <div class="map-toolbar" id="mapToolbar">
+          <button class="layer-chip active" data-layer="radar"><svg class="icon-sm"><use href="#i-cloud-rain"></use></svg> <span data-i18n="layer_radar">Radar</span></button>
+          <button class="layer-chip" data-layer="lightning"><svg class="icon-sm"><use href="#i-zap"></use></svg> <span data-i18n="layer_lightning">Lightning</span></button>
+          <button class="layer-chip" data-layer="flood"><svg class="icon-sm"><use href="#i-waves"></use></svg> <span data-i18n="layer_flood">Flood risk</span></button>
+          <button class="layer-chip" data-layer="wind"><svg class="icon-sm"><use href="#i-wind"></use></svg> <span data-i18n="layer_wind">Wind</span></button>
+          <button class="layer-chip" data-layer="sos"><svg class="icon-sm"><use href="#i-siren"></use></svg> <span data-i18n="layer_sos">SOS heatmap</span></button>
+          <button class="layer-chip" data-layer="shelters"><svg class="icon-sm"><use href="#i-tent"></use></svg> <span data-i18n="layer_shelters">Shelters</span></button>
+        </div>
+        <div class="map-stage" id="mapStage">
+          <div class="map-grid" aria-hidden="true"></div>
+          <svg class="map-svg" id="mapSvg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid slice"></svg>
+          <div class="map-legend" id="mapLegend"></div>
+          <div class="map-time-slider">
+            <span>−3h</span>
+            <input type="range" min="0" max="6" value="3" id="mapTimeRange">
+            <span>+3h (fcst)</span>
+          </div>
+        </div>
+        <div class="map-side-panel" id="mapSidePanel">
+          <h4>Layer detail</h4>
+          <p id="mapDetailText">Radar shows a moderate-to-heavy rain band moving northeast at ~18 km/h, expected to reach central districts within 40 minutes.</p>
+        </div>
+      </section>
+
+      <!-- ===== ALERTS ===== -->
+      <section class="panel" id="panel-alerts" hidden>
+        <div class="panel-header">
+          <div><h1 data-i18n="alerts_title">Alerts & Warnings</h1><p class="muted" data-i18n="alerts_sub">Official warnings, watches and personalized advisories</p></div>
+        </div>
+        <div class="tabs" id="alertTabs">
+          <button class="tab active" data-filter="all" data-i18n="tab_all">All</button>
+          <button class="tab" data-filter="warning" data-i18n="tab_warnings">Warnings</button>
+          <button class="tab" data-filter="watch" data-i18n="tab_watches">Watches</button>
+          <button class="tab" data-filter="advisory" data-i18n="tab_advisories">Advisories</button>
+        </div>
+        <div class="alert-list" id="alertList"></div>
+      </section>
+
+      <!-- ===== PLAN ===== -->
+      <section class="panel" id="panel-plan" hidden>
+        <div class="panel-header">
+          <div><h1 data-i18n="plan_title">Plan</h1><p class="muted" data-i18n="plan_sub">Weather-aware tools for travel, farming, fitness and events</p></div>
+        </div>
+        <div class="tool-tabs" id="toolTabs">
+          <button class="tool-tab active" data-tool="travel"><svg class="icon-sm"><use href="#i-plane"></use></svg> <span data-i18n="tab_travel">Travel</span></button>
+          <button class="tool-tab" data-tool="agri"><svg class="icon-sm"><use href="#i-wheat"></use></svg> <span data-i18n="tab_agri">Agriculture</span></button>
+          <button class="tool-tab" data-tool="fitness"><svg class="icon-sm"><use href="#i-footprints"></use></svg> <span data-i18n="tab_fitness">Fitness</span></button>
+          <button class="tool-tab" data-tool="event"><svg class="icon-sm"><use href="#i-party-popper"></use></svg> <span data-i18n="tab_event">Event</span></button>
+          <button class="tool-tab" data-tool="marine"><svg class="icon-sm"><use href="#i-waves"></use></svg> <span data-i18n="tab_marine">Marine</span></button>
+        </div>
+
+        <div class="tool-panel" id="tool-travel">
+          <div class="tool-form">
+            <label class="field"><span>Destination</span><input type="text" id="travelDest" placeholder="e.g. Mumbai" value="Mumbai"></label>
+            <label class="field"><span>Travel date</span><input type="date" id="travelDate"></label>
+            <button class="btn btn-primary" id="btnCheckTravel">Check destination weather</button>
+          </div>
+          <div class="tool-result" id="travelResult"></div>
+        </div>
+
+        <div class="tool-panel" id="tool-agri" hidden>
+          <div class="tool-form">
+            <label class="field"><span>Crop</span>
+              <select id="agriCrop"><option>Rice (paddy)</option><option>Wheat</option><option>Vegetables</option><option>Sugarcane</option></select>
+            </label>
+            <label class="field"><span>Field location</span><input type="text" id="agriLoc" value="Hooghly, West Bengal"></label>
+            <button class="btn btn-primary" id="btnCheckAgri">Get irrigation guidance</button>
+          </div>
+          <div class="tool-result" id="agriResult"></div>
+        </div>
+
+        <div class="tool-panel" id="tool-fitness" hidden>
+          <div class="tool-form">
+            <label class="field"><span>Activity</span>
+              <select id="fitnessActivity"><option>Running</option><option>Cycling</option><option>Outdoor gym</option><option>Walking</option></select>
+            </label>
+            <button class="btn btn-primary" id="btnCheckFitness">Find safest window</button>
+          </div>
+          <div class="tool-result" id="fitnessResult"></div>
+        </div>
+
+        <div class="tool-panel" id="tool-event" hidden>
+          <div class="tool-form event-form">
+            <label class="field"><span>Event name</span><input type="text" id="eventName" placeholder="e.g. Priya's Wedding Reception"></label>
+            <label class="field"><span>Event type</span>
+              <select id="eventType">
+                <option>Wedding</option><option>Birthday party</option><option>Corporate event</option>
+                <option>Concert / festival</option><option>Sports event</option><option>Religious / cultural</option><option>Other</option>
+              </select>
+            </label>
+            <label class="field"><span>Venue</span>
+              <select id="eventVenue">
+                <option value="outdoor-open">Outdoor — open air</option>
+                <option value="outdoor-covered">Outdoor — tented / covered</option>
+                <option value="indoor">Indoor</option>
+              </select>
+            </label>
+            <label class="field"><span>Location</span><input type="text" id="eventLoc" value="Kolkata, West Bengal"></label>
+            <label class="field"><span>Date</span><input type="date" id="eventDate"></label>
+            <label class="field"><span>Start time</span><input type="time" id="eventTime" value="18:00"></label>
+            <label class="field"><span>Duration</span>
+              <select id="eventDuration"><option value="2">1–2 hours</option><option value="4" selected>2–4 hours</option><option value="8">4–8 hours</option><option value="12">Full day</option></select>
+            </label>
+            <label class="field"><span>Expected guests</span><input type="number" id="eventGuests" min="1" value="150"></label>
+            <label class="field checkbox-field"><input type="checkbox" id="eventBackup"><span>Backup indoor venue available</span></label>
+            <button class="btn btn-primary" id="btnCheckEvent">Assess event risk</button>
+          </div>
+          <div class="tool-result" id="eventResult"></div>
+        </div>
+
+        <div class="tool-panel" id="tool-marine" hidden>
+          <div class="tool-form">
+            <label class="field"><span>Coastal location</span><input type="text" id="marineLoc" value="Digha, West Bengal"></label>
+            <button class="btn btn-primary" id="btnCheckMarine">Check sea conditions</button>
+          </div>
+          <div class="tool-result" id="marineResult"></div>
+        </div>
+      </section>
+
+      <!-- ===== CLIMATE / RESEARCH ===== -->
+      <section class="panel" id="panel-climate" hidden>
+        <div class="panel-header">
+          <div><h1 data-i18n="climate_title">Climate & Research</h1><p class="muted" data-i18n="climate_sub">Historical trends, anomalies and model access</p></div>
+        </div>
+        <div class="climate-controls">
+          <label class="field"><span data-i18n="label_metric">Metric</span>
+            <select id="climateMetric"><option value="rain">Monsoon rainfall</option><option value="temp">Avg. temperature</option><option value="extreme">Extreme-rain days</option></select>
+          </label>
+          <label class="field"><span data-i18n="label_range">Range</span>
+            <select id="climateRange"><option value="10">Last 10 years</option><option value="20" selected>Last 20 years</option><option value="30">Last 30 years</option></select>
+          </label>
+        </div>
+        <div class="chart-card">
+          <canvas id="climateChart" height="260"></canvas>
+        </div>
+        <div class="climate-stats" id="climateStats"></div>
+        <div class="climate-note">
+          <strong>Reproducibility note:</strong> Dataset v2.3 (synthetic demo) · Model run 2026-08-24T06:00Z · Spatial res. 4 km · This is illustrative data for the prototype, not an official climate record.
+        </div>
+      </section>
+
+      <!-- ===== COMMAND CENTRE (official role) ===== -->
+      <section class="panel" id="panel-command" hidden>
+        <div class="panel-header">
+          <div><h1 data-i18n="command_title">Emergency Command Centre</h1><p class="muted" data-i18n="command_sub">Situation overview for authorized disaster-management officers</p></div>
+          <span class="role-tag"><svg class="icon-sm"><use href="#i-landmark"></use></svg> <span data-i18n="restricted_note_command">Official view</span></span>
+        </div>
+        <div class="command-stats" id="commandStats"></div>
+        <div class="command-grid">
+          <div class="command-col">
+            <h4>Incident queue <span class="muted small" id="incidentCount"></span></h4>
+            <div id="incidentQueue" class="incident-queue"></div>
+          </div>
+          <div class="command-col">
+            <h4>Resource status</h4>
+            <div id="resourceStatus" class="resource-status"></div>
+            <h4 class="mt">Underserved areas</h4>
+            <div id="underservedList" class="underserved-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SOS ===== -->
+      <section class="panel panel-sos" id="panel-sos" hidden>
+        <div class="sos-shell">
+          <div class="sos-main" id="sosMain">
+            <p class="sos-eyebrow" data-i18n="sos_title">EMERGENCY SOS</p>
+            <h1 data-i18n="sos_sub">Tap for help. Even offline, we'll try to reach someone.</h1>
+            <p class="muted">Tap the button multiple times to signal urgency. WeatherGPT combines your taps with location and hazard context to prioritize your case.</p>
+
+            <button class="sos-button" id="sosButton">
+              <span id="sosButtonLabel" data-i18n="sos_button_label">SOS</span>
+              <span class="sos-ring r1"></span>
+              <span class="sos-ring r2"></span>
+            </button>
+            <div class="sos-taps">Taps: <strong id="sosTapCount">0</strong> <span id="sosUrgencyLabel" class="urgency-tag">—</span></div>
+
+            <div class="sos-cancel-row" id="sosCancelRow" hidden>
+              <p>Sending in <strong id="sosCountdown">5</strong>s…</p>
+              <button class="btn btn-outline" id="btnCancelSos" data-i18n="sos_cancel">Cancel</button>
+            </div>
+          </div>
+
+          <div class="sos-status" id="sosStatus" hidden>
+            <h3>Incident status</h3>
+            <ol class="sos-lifecycle" id="sosLifecycle"></ol>
+
+            <div class="sos-context">
+              <h4>Transmission context</h4>
+              <div class="context-grid">
+                <div><small>Battery band</small><strong id="ctxBattery">High (82%)</strong></div>
+                <div><small>Connectivity</small><strong id="ctxConn">Direct (weak)</strong></div>
+                <div><small>Mesh hops</small><strong id="ctxHops">2 nearby devices</strong></div>
+                <div><small>Location</small><strong id="ctxLoc">Kolkata · approx.</strong></div>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-block" id="btnResolveSos">Mark as resolved / false alarm</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PROFILE ===== -->
+      <section class="panel" id="panel-profile" hidden>
+        <div class="panel-header"><div><h1 data-i18n="profile_settings_title">Profile & Settings</h1><p class="muted">Preferences, accessibility and consent</p></div></div>
+
+        <div class="profile-grid">
+          <div class="settings-card">
+            <h4>About you</h4>
+            <label class="field"><span data-i18n="label_full_name">Name</span><input type="text" id="settingName"></label>
+            <label class="field"><span data-i18n="label_location">Primary location</span><input type="text" id="settingLocation"></label>
+            <span class="field-label" data-i18n="label_role_pref">Role</span>
+            <div class="role-grid" id="settingRoleGrid">
+              <button class="role-card" data-role="citizen"><svg class="icon"><use href="#i-home"></use></svg><span data-i18n="role_citizen">Citizen</span></button>
+              <button class="role-card" data-role="farmer"><svg class="icon"><use href="#i-wheat"></use></svg><span data-i18n="role_farmer">Farmer</span></button>
+              <button class="role-card" data-role="traveler"><svg class="icon"><use href="#i-plane"></use></svg><span data-i18n="role_traveler">Traveler</span></button>
+              <button class="role-card" data-role="researcher"><svg class="icon"><use href="#i-flask-conical"></use></svg><span data-i18n="role_researcher">Researcher</span></button>
+              <button class="role-card" data-role="official"><svg class="icon"><use href="#i-landmark"></use></svg><span data-i18n="role_official">Official</span></button>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h4>Preferences</h4>
+            <div class="settings-row"><span data-i18n="label_units">Temperature unit</span>
+              <div class="segmented small" id="unitSwitch"><button class="seg-btn active" data-unit="c">°C</button><button class="seg-btn" data-unit="f">°F</button></div>
+            </div>
+            <div class="settings-row"><span data-i18n="label_language">Language</span>
+              <select id="settingLanguage"></select>
+            </div>
+            <div class="settings-row"><span></span><button class="link-btn" id="btnOpenLanguagePicker">Browse all languages</button></div>
+            <div class="settings-row"><span data-i18n="label_theme">Theme</span>
+              <div class="segmented small" id="themeSwitch"><button class="seg-btn active" data-theme="dark">Dark</button><button class="seg-btn" data-theme="light">Light</button></div>
+            </div>
+            <div class="settings-row"><span data-i18n="label_low_data">Low-data mode</span><label class="switch"><input type="checkbox" id="toggleLowData"><span class="slider"></span></label></div>
+            <div class="settings-row"><span data-i18n="label_battery_sos">Battery-aware SOS</span><label class="switch"><input type="checkbox" id="toggleBattery" checked><span class="slider"></span></label></div>
+          </div>
+
+          <div class="settings-card">
+            <h4 data-i18n="label_accessibility">Accessibility</h4>
+            <div class="settings-row"><span data-i18n="label_large_text">Large text</span><label class="switch"><input type="checkbox" id="toggleLargeText"><span class="slider"></span></label></div>
+            <div class="settings-row"><span data-i18n="label_high_contrast">High contrast</span><label class="switch"><input type="checkbox" id="toggleContrast"><span class="slider"></span></label></div>
+            <div class="settings-row"><span data-i18n="label_reduced_motion">Reduced motion</span><label class="switch"><input type="checkbox" id="toggleMotion"><span class="slider"></span></label></div>
+            <div class="settings-row"><span>Screen-reader friendly labels</span><label class="switch"><input type="checkbox" id="toggleSR" checked><span class="slider"></span></label></div>
+          </div>
+
+          <div class="settings-card">
+            <h4>Notifications</h4>
+            <div class="settings-row"><span>Severe weather warnings</span><label class="switch"><input type="checkbox" id="notifSevere" checked><span class="slider"></span></label></div>
+            <div class="settings-row"><span>Daily forecast summary</span><label class="switch"><input type="checkbox" id="notifDaily" checked><span class="slider"></span></label></div>
+            <div class="settings-row"><span>Quiet hours (critical alerts still deliver)</span><label class="switch"><input type="checkbox" id="notifQuiet"><span class="slider"></span></label></div>
+          </div>
+
+          <div class="settings-card">
+            <h4 data-i18n="label_saved_locations">Saved locations</h4>
+            <div id="savedLocationsList" class="saved-locations"></div>
+            <div class="add-location-row">
+              <input type="text" id="newLocationInput" placeholder="Add a location…">
+              <button class="btn btn-outline" id="btnAddLocation" data-i18n="btn_add">Add</button>
+            </div>
+          </div>
+
+          <div class="settings-card danger-card">
+            <h4 data-i18n="danger_zone_title">Session</h4>
+            <p class="muted small">Signed in with demo credentials. This is a prototype — no real account is created.</p>
+            <button class="btn btn-outline btn-block" id="btnLogout" data-i18n="btn_logout">Log out</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</section>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Location switcher popover -->
+<div class="popover" id="locationPopover" hidden>
+  <p class="popover-title">Switch location</p>
+  <div id="locationPopoverList"></div>
+</div>
+
+<!-- Quick settings popover -->
+<div class="popover settings-popover" id="settingsPopover" hidden role="menu" aria-label="Settings">
+  <p class="popover-title">Settings</p>
+
+  <div class="popover-settings-row">
+    <span class="popover-settings-label"><svg class="icon icon-sm"><use href="#i-sun"></use></svg> <span data-i18n="label_theme">Theme</span></span>
+    <div class="segmented small" id="quickThemeSwitch">
+      <button class="seg-btn" data-theme="dark" type="button">Dark</button>
+      <button class="seg-btn" data-theme="light" type="button">Light</button>
+    </div>
+  </div>
+
+  <div class="popover-settings-row">
+    <span class="popover-settings-label"><svg class="icon icon-sm"><use href="#i-globe"></use></svg> <span data-i18n="label_language">Language</span></span>
+    <select id="quickLanguageSelect" aria-label="Change language"></select>
+  </div>
+
+  <button class="popover-logout-btn" id="quickLogoutBtn" type="button" role="menuitem">
+    <svg class="icon icon-sm"><use href="#i-log-out"></use></svg>
+    <span data-i18n="btn_logout">Log out</span>
+  </button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
