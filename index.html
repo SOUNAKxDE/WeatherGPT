@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>WeatherGPT — AI Weather Intelligence & Disaster Response</title>
 <link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0f14">
+<meta name="description" content="Conversational weather intelligence, alerts, and emergency SOS tools that keep working with a weak connection.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -717,9 +721,9 @@
           </div>
           <div class="chat-input-wrap">
             <div class="chat-input-bar">
-              <button class="icon-btn" id="btnVoice" title="Voice input"><svg class="icon-md"><use href="#i-mic"></use></svg></button>
+              <button class="icon-btn" id="btnVoice" title="Voice input" aria-label="Voice input"><svg class="icon-md"><use href="#i-mic"></use></svg></button>
               <textarea id="chatInput" placeholder="Type here" rows="1"></textarea>
-              <button class="icon-btn" id="btnLangChat" title="Language"><svg class="icon-md"><use href="#i-globe"></use></svg></button>
+              <button class="icon-btn" id="btnLangChat" title="Language" aria-label="Change language"><svg class="icon-md"><use href="#i-globe"></use></svg></button>
               <button class="send-btn" id="btnSend" aria-label="Send"><svg class="icon-sm"><use href="#i-send"></use></svg></button>
             </div>
             <p class="chat-disclaimer">WeatherGPT gives decision support based on available data — always follow official warnings during active emergencies.</p>
@@ -934,7 +938,12 @@
           <div class="settings-card">
             <h4>About you</h4>
             <label class="field"><span data-i18n="label_full_name">Name</span><input type="text" id="settingName"></label>
-            <label class="field"><span data-i18n="label_location">Primary location</span><input type="text" id="settingLocation"></label>
+            <label class="field"><span data-i18n="label_location">Primary location</span>
+              <div class="location-search-box">
+                <input type="text" id="settingLocation" placeholder="Search any city…" autocomplete="off">
+              </div>
+              <div id="settingLocationResults" class="location-search-results" hidden></div>
+            </label>
             <span class="field-label" data-i18n="label_role_pref">Role</span>
             <div class="role-grid" id="settingRoleGrid">
               <button class="role-card" data-role="citizen"><svg class="icon"><use href="#i-home"></use></svg><span data-i18n="role_citizen">Citizen</span></button>
@@ -1015,6 +1024,11 @@
 
 <div class="popover" id="locationPopover" hidden>
   <p class="popover-title">Switch location</p>
+  <div class="location-search-box">
+    <input type="text" id="locationSearchInput" placeholder="Search any city…" autocomplete="off" aria-label="Search for a city">
+  </div>
+  <div id="locationSearchResults" class="location-search-results" hidden></div>
+  <p class="popover-title" id="savedLocationsLabel">Saved</p>
   <div id="locationPopoverList"></div>
 </div>
 
@@ -1040,6 +1054,8 @@
   </button>
 </div>
 
+<script src="data.js"></script>
+<script src="weather-api.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

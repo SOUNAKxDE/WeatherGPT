@@ -661,6 +661,19 @@ body.reduced-motion .sos-ring{ animation:none; opacity:0; }
 
 .popover{ position:fixed; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:.8rem; box-shadow:var(--shadow); z-index:400; min-width:220px; }
 .popover-title{ font-size:.73rem; text-transform:uppercase; letter-spacing:.03em; color:var(--text-faint); padding:.2rem .4rem .5rem; }
+.location-search-box{ position:relative; margin-bottom:.4rem; }
+.location-search-box input{
+  width:100%; background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:.55rem .8rem; color:var(--text); font-size:.86rem; font-family:inherit;
+}
+.location-search-box input:focus{ border-color:var(--accent); outline:none; }
+.location-search-results{
+  max-height:220px; overflow-y:auto; margin-bottom:.5rem; border:1px solid var(--border-soft);
+  border-radius:var(--radius-sm); background:var(--bg-2);
+}
+.location-search-results button.loc-item{ border-radius:0; }
+.location-search-results .loc-empty,
+.location-search-results .loc-loading{ padding:.6rem .8rem; font-size:.82rem; color:var(--text-faint); }
 .popover button.loc-item{ display:flex; align-items:center; gap:.55rem; width:100%; text-align:left; background:none; border:none; color:var(--text); padding:.5rem .6rem; border-radius:var(--radius-sm); font-size:.86rem; }
 .popover button.loc-item:hover{ background:var(--bg-2); }
 .popover button.loc-item .icon{ color:var(--text-faint); flex-shrink:0; }
