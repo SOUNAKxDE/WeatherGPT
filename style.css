@@ -60,7 +60,7 @@
 .icon-tile.safe{ color:var(--safe); }
 
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
+html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden;}
 body{
   background:var(--bg);
   color:var(--text);
@@ -204,16 +204,21 @@ body.reduced-motion .view-splash{ transition:none; }
    LANDING
    ========================================================= */
 .nav{
-  display:flex; align-items:center; justify-content:space-between; padding:1.1rem 4vw;
+  display:flex; align-items:center; justify-content:space-between; gap:1.5rem; padding:1.1rem 4vw;
   max-width:1400px; margin:0 auto; position:sticky; top:0; z-index:50;
   backdrop-filter:blur(10px); background:rgba(10,13,19,.78); border-bottom:1px solid var(--border-soft);
 }
 body.light-theme .nav{ background:rgba(245,246,249,.85); }
-.nav-links{ display:flex; gap:2rem; }
-.nav-links a{ text-decoration:none; color:var(--text-dim); font-weight:600; font-size:.92rem; }
-.nav-links a:hover{ color:var(--text); }
-.nav-cta{ display:flex; gap:.6rem; }
-.nav-hamburger{ display:none; }
+.brand{ flex-shrink:0; }
+.nav-links{ display:flex; align-items:center; gap:2.4rem; min-width:0; }
+.nav-links-primary{ display:flex; align-items:center; gap:2rem; }
+.nav-links-primary a{ text-decoration:none; color:var(--text-dim); font-weight:600; font-size:.92rem; white-space:nowrap; }
+.nav-links-primary a:hover{ color:var(--text); }
+.nav-links-cta{ display:flex; align-items:center; gap:.6rem; flex-shrink:0; }
+.nav-hamburger{ display:none; flex-shrink:0; position:relative; }
+.nav-hamburger-icon-close{ display:none; }
+.nav-hamburger.open .nav-hamburger-icon-menu{ display:none; }
+.nav-hamburger.open .nav-hamburger-icon-close{ display:inline-block; }
 
 .hero{
   display:grid; grid-template-columns:1.1fr .9fr; gap:3rem; align-items:center;
@@ -302,7 +307,7 @@ body.reduced-motion .radar-blip{ animation:none; opacity:.7; }
    AUTH
    ========================================================= */
 .view-auth{ min-height:100vh; display:flex; }
-.auth-shell{ display:grid; grid-template-columns:1fr 1fr; width:100%; min-height:100vh; }
+.auth-shell{ display:grid; grid-template-columns:1fr 1fr; width:100%; min-width:0; min-height:100vh; }
 .auth-side{
   background:radial-gradient(circle at 20% 20%, #121722, var(--bg) 60%);
   border-right:1px solid var(--border-soft);
@@ -313,8 +318,8 @@ body.reduced-motion .radar-blip{ animation:none; opacity:.7; }
 .auth-points{ list-style:none; padding:0; margin-top:1rem; display:flex; flex-direction:column; gap:.8rem; color:var(--text-dim); font-size:.88rem; }
 .auth-points li{ display:flex; align-items:center; gap:.65rem; }
 
-.auth-panel{ display:flex; align-items:center; justify-content:center; padding:3rem 2rem; }
-.auth-step{ width:100%; max-width:400px; position:relative; }
+.auth-panel{ display:flex; align-items:center; justify-content:center; padding:3rem 2rem; min-width:0; width:100%; }
+.auth-step{ width:100%; max-width:400px; min-width:0; position:relative; }
 .auth-step h3{ font-size:1.5rem; margin-bottom:.5rem; }
 .auth-hint{ color:var(--text-dim); font-size:.9rem; margin-bottom:1.6rem; line-height:1.5; }
 .auth-back{ background:none; border:1px solid var(--border); border-radius:8px; width:34px; height:34px; color:var(--text); margin-bottom:1.2rem; }
@@ -341,9 +346,14 @@ body.reduced-motion .radar-blip{ animation:none; opacity:.7; }
 .resend-row .link-btn:disabled{ color:var(--text-faint); text-decoration:none; }
 
 .role-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin-bottom:1.6rem; }
+.role-grid[hidden]{ display:none !important; }
 .role-card{ background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem .5rem; display:flex; flex-direction:column; align-items:center; gap:.5rem; font-size:.78rem; font-weight:600; color:var(--text-dim); }
+.role-card[hidden]{ display:none !important; }
 .role-card .icon{ width:18px; height:18px; }
 .role-card.active{ border-color:var(--accent); color:var(--accent); background:rgba(75,172,206,.08); }
+.role-card.role-more{ border-style:dashed; color:var(--text-faint); background:transparent; }
+.role-card.role-more .icon{ transition:transform .15s ease; }
+.role-card.role-more[aria-expanded="true"] .icon{ transform:rotate(90deg); }
 
 /* =========================================================
    APP SHELL
@@ -375,6 +385,7 @@ body.reduced-motion .radar-blip{ animation:none; opacity:.7; }
 .side-link.active{ background:var(--bg-2); color:var(--accent); }
 .side-link.sos-link{ color:var(--danger); }
 .side-link.sos-link:hover{ background:var(--danger-dim); }
+.side-link[hidden]{ display:none !important; }
 
 .chat-history{ flex:1; overflow-y:auto; margin-top:.4rem; min-height:60px; }
 .side-section-label{ font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); padding:.4rem .7rem; }
@@ -724,20 +735,24 @@ body.reduced-motion .sos-ring{ animation:none; opacity:0; }
 }
 
 @media (max-width: 760px){
-  .nav{ padding:1rem 5vw; position:relative; flex-wrap:wrap; }
-  .nav-hamburger{ display:flex; order:3; }
-  .nav-cta{ order:2; margin-left:auto; margin-right:.4rem; }
+  .nav{ padding:.9rem 5vw; position:relative; }
+  .nav-hamburger{ display:flex; }
   .nav-links{
-    display:flex; flex-direction:column; gap:0; order:4;
+    display:flex; flex-direction:column; align-items:stretch; gap:0;
     position:absolute; top:100%; left:0; right:0; width:100%;
     background:var(--bg-1); border-bottom:1px solid var(--border-soft);
-    padding:.4rem 5vw 1rem; box-shadow:0 16px 28px rgba(0,0,0,.35);
+    padding:.4rem 5vw 1.2rem; box-shadow:0 16px 28px rgba(0,0,0,.35);
     max-height:0; overflow:hidden; opacity:0; pointer-events:none;
-    transition:max-height .25s ease, opacity .2s ease;
+    transition:max-height .3s ease, opacity .2s ease;
   }
-  .nav-links.open{ max-height:260px; opacity:1; pointer-events:auto; }
-  .nav-links a{ padding:.8rem 0; border-bottom:1px solid var(--border-soft); }
-  .nav-links a:last-child{ border-bottom:none; }
+  .nav-links.open{ max-height:420px; opacity:1; pointer-events:auto; }
+  .nav-links-primary{ flex-direction:column; align-items:stretch; gap:0; }
+  .nav-links-primary a{ padding:.9rem 0; border-bottom:1px solid var(--border-soft); }
+  .nav-links-cta{
+    flex-direction:column; align-items:stretch; gap:.6rem;
+    margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-soft);
+  }
+  .nav-links-cta .btn{ width:100%; padding:.85rem 1.1rem; }
   .hero{ padding:2rem 5vw 3rem; }
   .hero-copy{ order:-1; }
   .hero-visual{ order:0; }
@@ -782,12 +797,76 @@ body.reduced-motion .sos-ring{ animation:none; opacity:0; }
 
   .map-stage{ height:340px; }
   .map-side-panel{ margin-bottom:1rem; }
+  .map-time-slider{ width:calc(100% - 2rem); max-width:340px; justify-content:space-between; }
+  .map-time-slider input{ width:auto; flex:1; min-width:0; }
 
   .sos-shell{ gap:1.6rem; }
   .sos-button{ width:130px; height:130px; font-size:1.2rem; }
 
-  .auth-panel{ padding:2rem 1.2rem; }
+  .auth-panel{ padding:1.5rem 1.25rem; align-items:center; }
   .role-grid{ grid-template-columns:repeat(2,1fr); }
 
   .otp-box{ font-size:1.1rem; }
+
+  /* ---- Step 3 quick profile: compact so it fits one screen, no scroll ---- */
+  #step-profile{ width:100%; }
+  #step-profile h3{ font-size:1.2rem; margin-bottom:.3rem; }
+  #step-profile .auth-hint{ font-size:.8rem; margin-bottom:1rem; line-height:1.45; }
+  #step-profile .field{ margin-bottom:.7rem; gap:.35rem; }
+  #step-profile .field span{ font-size:.74rem; }
+  #step-profile .field input,
+  #step-profile .field select{ padding:.6rem .75rem; font-size:.9rem; border-radius:10px; }
+  #step-profile .field-label{ font-size:.74rem; margin:.1rem 0 .5rem; }
+
+  /* Fixed 3-column persona grid — never scrolls. Two extra roles stay
+     tucked behind "More" so the grid holds at 2 rows until asked to grow. */
+  #step-profile .role-grid{ grid-template-columns:repeat(3,1fr); gap:.5rem; margin-bottom:1rem; }
+  #step-profile .role-card{
+    padding:.65rem .3rem; font-size:.68rem; gap:.35rem; border-radius:12px;
+    line-height:1.15; text-align:center; word-break:break-word;
+  }
+  #step-profile .role-card .icon{ width:16px; height:16px; }
+
+  #officialProfileSection .field{ margin-bottom:.7rem; }
+  #officialProfileSection .auth-legal{ font-size:.72rem; margin-top:.4rem; }
+
+  #step-profile .btn-block{ padding:.75rem 1.1rem; font-size:.92rem; margin-top:.2rem; }
+
+  .event-weather-row{ grid-template-columns:repeat(2,1fr); gap:1rem .8rem; }
+  .day-compare{ grid-template-columns:1fr; gap:.6rem; }
+  .day-compare-card{ display:flex; align-items:center; justify-content:space-between; text-align:left; padding:.75rem 1rem; }
+  .day-compare-card .dc-label{ margin-bottom:0; width:70px; flex-shrink:0; }
+  .day-compare-card .dc-icon{ margin-bottom:0; }
+  .day-compare-card .dc-best-tag{ position:static; transform:none; margin-left:auto; }
+
+  .tool-form{ padding:1.1rem 1.2rem; gap:.9rem; }
+  .tool-form .field, .climate-controls .field{ min-width:0; flex:1 1 100%; }
+  .climate-controls{ gap:.8rem; }
+
+  .settings-row{ flex-wrap:wrap; row-gap:.5rem; }
+
+  .icon-btn{ width:40px; height:40px; }
+  .btn:not(.btn-lg):not(.nav-links-cta .btn){ padding:.68rem 1.1rem; }
+}
+
+@media (max-width: 420px){
+  .hero-actions{ flex-direction:column; align-items:stretch; }
+  .hero-actions .btn{ width:100%; }
+  .hero-trust{ justify-content:space-between; gap:.8rem; }
+  .otp-row{ gap:.4rem; }
+  .social-row{ flex-direction:column; }
+  .eyebrow{ letter-spacing:.06em; font-size:.72rem; }
+  .role-grid{ grid-template-columns:1fr 1fr; gap:.5rem; }
+  .command-stats, .climate-stats{ grid-template-columns:1fr 1fr; }
+  .event-weather-row{ grid-template-columns:1fr 1fr; }
+  .sos-cancel-row{ flex-direction:column; align-items:stretch; text-align:center; }
+}
+
+/* Safety net for unusually short phone viewports (e.g. landscape, or a
+   phone keyboard eating vertical space): allow the auth panel itself to
+   scroll rather than clipping content, without affecting normal-height
+   phones where everything already fits in one screen. */
+@media (max-width: 760px) and (max-height: 640px){
+  .view-auth{ min-height:100vh; height:100dvh; overflow-y:auto; align-items:flex-start; }
+  .auth-panel{ min-height:100dvh; padding:1rem 1.2rem; }
 }

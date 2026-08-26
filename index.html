@@ -272,16 +272,19 @@
       <span class="brand-name">WeatherGPT</span>
     </div>
     <nav class="nav-links" id="navLinks">
-      <a href="#features" data-i18n="nav_platform">Platform</a>
-      <a href="#pillars" data-i18n="nav_intelligence">Intelligence</a>
-      <a href="#personas" data-i18n="nav_personas">Who it's for</a>
+      <div class="nav-links-primary">
+        <a href="#features" data-i18n="nav_platform">Platform</a>
+        <a href="#pillars" data-i18n="nav_intelligence">Intelligence</a>
+        <a href="#personas" data-i18n="nav_personas">Who it's for</a>
+      </div>
+      <div class="nav-links-cta">
+        <button class="btn btn-ghost" id="btnNavLogin" data-i18n="nav_login">Log in</button>
+        <button class="btn btn-primary" id="btnNavStart" data-i18n="nav_start">Get started</button>
+      </div>
     </nav>
-    <div class="nav-cta">
-      <button class="btn btn-ghost" id="btnNavLogin" data-i18n="nav_login">Log in</button>
-      <button class="btn btn-primary" id="btnNavStart" data-i18n="nav_start">Get started</button>
-    </div>
     <button class="icon-btn nav-hamburger" id="btnNavHamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
-      <svg class="icon-md"><use href="#i-menu"></use></svg>
+      <svg class="icon-md nav-hamburger-icon-menu"><use href="#i-menu"></use></svg>
+      <svg class="icon-md nav-hamburger-icon-close"><use href="#i-x"></use></svg>
     </button>
   </header>
 
@@ -292,7 +295,7 @@
       <p class="hero-sub" data-i18n="hero_sub">One conversational intelligence layer over radar, satellite, lightning, hydrology and emergency data — turning raw atmosphere into plain-language decisions for citizens, farmers, travelers, researchers and disaster command centres.</p>
       <div class="hero-actions">
         <button class="btn btn-primary btn-lg" id="btnHeroStart" data-i18n="hero_cta_start">Start with WeatherGPT</button>
-        <button class="btn btn-outline btn-lg" id="btnHeroDemo" data-i18n="hero_cta_demo">See it answer a question ↓</button>
+        <button class="btn btn-outline btn-lg" id="btnHeroDemo" data-i18n="hero_cta_demo">What is WeatherGPT? ↓</button>
       </div>
       <div class="hero-trust">
         <div><strong>4</strong><span data-i18n="hero_trust_1">Intelligence pillars</span></div>
@@ -410,41 +413,83 @@
         <h3 data-i18n="auth_welcome_title">Log in or sign up</h3>
         <p class="auth-hint" data-i18n="auth_welcome_sub">We'll send a one-time code to verify it's you — no password to remember.</p>
 
-        <div class="segmented" id="authModeSwitch">
-          <button class="seg-btn active" data-mode="phone" data-i18n="tab_phone">Phone</button>
-          <button class="seg-btn" data-mode="email" data-i18n="tab_email">Email</button>
+        <span class="field-label">Continue as</span>
+        <div class="segmented account-type-switch" id="accountTypeSwitch">
+          <button class="seg-btn active" data-account="citizen" type="button"><svg class="icon icon-sm"><use href="#i-users"></use></svg> Citizen</button>
+          <button class="seg-btn" data-account="official" type="button"><svg class="icon icon-sm"><use href="#i-landmark"></use></svg> Government Official</button>
         </div>
 
-        <label class="field" id="phoneField">
-          <span>Mobile number</span>
-          <div class="input-with-prefix">
-            <span class="prefix">+91</span>
-            <input type="tel" id="inputPhone" inputmode="numeric" maxlength="10" placeholder="98765 43210" autocomplete="tel">
+        <!-- Citizen sign-in -->
+        <div id="citizenAuthFields">
+          <div class="segmented" id="authModeSwitch">
+            <button class="seg-btn active" data-mode="phone" data-i18n="tab_phone">Phone</button>
+            <button class="seg-btn" data-mode="email" data-i18n="tab_email">Email</button>
           </div>
-        </label>
 
-        <label class="field" id="emailField" hidden>
-          <span>Email address</span>
-          <input type="email" id="inputEmail" placeholder="you@example.com" autocomplete="email">
-        </label>
+          <label class="field" id="phoneField">
+            <span>Mobile number</span>
+            <div class="input-with-prefix">
+              <span class="prefix">+91</span>
+              <input type="tel" id="inputPhone" inputmode="numeric" maxlength="10" placeholder="98765 43210" autocomplete="tel">
+            </div>
+          </label>
 
-        <p class="field-error" id="identifierError" hidden></p>
+          <label class="field" id="emailField" hidden>
+            <span>Email address</span>
+            <input type="email" id="inputEmail" placeholder="you@example.com" autocomplete="email">
+          </label>
 
-        <button class="btn btn-primary btn-block" id="btnSendOtp" data-i18n="btn_send_otp">Send OTP</button>
+          <p class="field-error" id="identifierError" hidden></p>
 
-        <div class="auth-divider"><span>or continue with</span></div>
-        <div class="social-row">
-          <button class="btn btn-social">Google</button>
-          <button class="btn btn-social">Apple</button>
+          <button class="btn btn-primary btn-block" id="btnSendOtp" data-i18n="btn_send_otp">Send OTP</button>
+
+          <div class="auth-divider"><span>or continue with</span></div>
+          <div class="social-row">
+            <button class="btn btn-social">Google</button>
+            <button class="btn btn-social">Apple</button>
+          </div>
+          <p class="auth-legal">By continuing you agree to WeatherGPT's Terms and acknowledge the Privacy Notice, including consent settings for SOS location sharing.</p>
         </div>
-        <p class="auth-legal">By continuing you agree to WeatherGPT's Terms and acknowledge the Privacy Notice, including consent settings for SOS location sharing.</p>
+
+        <!-- Government official sign-in -->
+        <div id="officialAuthFields" hidden>
+          <label class="field">
+            <span>Government Employee ID</span>
+            <input type="text" id="inputEmployeeId" placeholder="e.g. WB-DM-04821" autocomplete="off">
+          </label>
+
+          <label class="field">
+            <span>Official email address</span>
+            <input type="email" id="inputOfficialEmail" placeholder="name@nic.in" autocomplete="email">
+          </label>
+
+          <label class="field">
+            <span>Department</span>
+            <select id="inputDepartment">
+              <option value="Disaster Management">Disaster Management</option>
+              <option value="Meteorological Department">Meteorological Department</option>
+              <option value="District Administration">District Administration</option>
+              <option value="Municipal Corporation">Municipal Corporation</option>
+              <option value="Police">Police</option>
+              <option value="Fire &amp; Emergency Services">Fire &amp; Emergency Services</option>
+              <option value="NDRF / SDRF">NDRF / SDRF</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <p class="field-error" id="officialIdentifierError" hidden></p>
+
+          <button class="btn btn-primary btn-block" id="btnSendOtpOfficial">Send verification code</button>
+
+          <p class="auth-legal">Access is limited to verified government and disaster-management accounts. Sign-in attempts are logged, and the Command Centre is only enabled after verification.</p>
+        </div>
       </div>
 
       <!-- Step 2: OTP -->
       <div class="auth-step" id="step-otp" hidden>
         <button class="auth-back" id="backToIdentifier" aria-label="Back">←</button>
-        <h3 data-i18n="otp_title">Enter the code</h3>
-        <p class="auth-hint">We sent a 6-digit code to <strong id="otpDestination">+91 98765 43210</strong>. <button class="link-btn" id="btnEditDestination">Edit</button></p>
+        <h3 data-i18n="otp_title" id="otpTitle">Enter the code</h3>
+        <p class="auth-hint"><span id="otpHintPrefix">We sent a 6-digit code to</span> <strong id="otpDestination">+91 98765 43210</strong>. <button class="link-btn" id="btnEditDestination">Edit</button></p>
 
         <div class="otp-row" id="otpRow">
           <input class="otp-box" maxlength="1" inputmode="numeric" autocomplete="one-time-code" data-i="0">
@@ -463,8 +508,8 @@
 
       <!-- Step 3: quick profile -->
       <div class="auth-step" id="step-profile" hidden>
-        <h3 data-i18n="profile_title">A couple of quick things</h3>
-        <p class="auth-hint" data-i18n="profile_sub">This helps us personalize your home screen. You can change all of this later.</p>
+        <h3 id="profileTitle" data-i18n="profile_title">A couple of quick things</h3>
+        <p class="auth-hint" id="profileSub" data-i18n="profile_sub">This helps us personalize your home screen. You can change all of this later.</p>
 
         <label class="field">
           <span data-i18n="label_name">What should we call you?</span>
@@ -472,17 +517,86 @@
         </label>
 
         <label class="field">
-          <span data-i18n="label_location">Primary location</span>
-          <input type="text" id="inputLocation" placeholder="e.g. Kolkata, West Bengal" value="Kolkata, West Bengal">
+          <span>State / Union Territory</span>
+          <select id="inputState">
+            <optgroup label="States">
+              <option value="Andhra Pradesh">Andhra Pradesh</option>
+              <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+              <option value="Assam">Assam</option>
+              <option value="Bihar">Bihar</option>
+              <option value="Chhattisgarh">Chhattisgarh</option>
+              <option value="Goa">Goa</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Haryana">Haryana</option>
+              <option value="Himachal Pradesh">Himachal Pradesh</option>
+              <option value="Jharkhand">Jharkhand</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Madhya Pradesh">Madhya Pradesh</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Manipur">Manipur</option>
+              <option value="Meghalaya">Meghalaya</option>
+              <option value="Mizoram">Mizoram</option>
+              <option value="Nagaland">Nagaland</option>
+              <option value="Odisha">Odisha</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Sikkim">Sikkim</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="Telangana">Telangana</option>
+              <option value="Tripura">Tripura</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+              <option value="Uttarakhand">Uttarakhand</option>
+              <option value="West Bengal" selected>West Bengal</option>
+            </optgroup>
+            <optgroup label="Union Territories">
+              <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+              <option value="Chandigarh">Chandigarh</option>
+              <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+              <option value="Delhi">Delhi (NCT)</option>
+              <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+              <option value="Ladakh">Ladakh</option>
+              <option value="Lakshadweep">Lakshadweep</option>
+              <option value="Puducherry">Puducherry</option>
+            </optgroup>
+          </select>
         </label>
 
-        <span class="field-label" data-i18n="label_role">I'm mainly here as a</span>
-        <div class="role-grid" id="roleGrid">
-          <button class="role-card active" data-role="citizen"><svg class="icon"><use href="#i-home"></use></svg><span data-i18n="role_citizen">Citizen</span></button>
-          <button class="role-card" data-role="farmer"><svg class="icon"><use href="#i-wheat"></use></svg><span data-i18n="role_farmer">Farmer</span></button>
-          <button class="role-card" data-role="traveler"><svg class="icon"><use href="#i-plane"></use></svg><span data-i18n="role_traveler">Traveler</span></button>
-          <button class="role-card" data-role="researcher"><svg class="icon"><use href="#i-flask-conical"></use></svg><span data-i18n="role_researcher">Researcher</span></button>
-          <button class="role-card" data-role="official"><svg class="icon"><use href="#i-landmark"></use></svg><span data-i18n="role_official">Official</span></button>
+        <label class="field">
+          <span>City / Town</span>
+          <select id="inputCity"></select>
+        </label>
+
+        <!-- Citizen persona picker -->
+        <div id="citizenPersonaSection">
+          <span class="field-label" data-i18n="label_role">I'm mainly here as a</span>
+          <div class="role-grid" id="roleGrid">
+            <button class="role-card active" type="button" data-role="citizen"><svg class="icon"><use href="#i-home"></use></svg><span data-i18n="role_citizen">Citizen</span></button>
+            <button class="role-card" type="button" data-role="student"><svg class="icon"><use href="#i-backpack"></use></svg><span data-i18n="role_student">Student</span></button>
+            <button class="role-card" type="button" data-role="parent"><svg class="icon"><use href="#i-users"></use></svg><span data-i18n="role_parent">Parent</span></button>
+            <button class="role-card" type="button" data-role="farmer"><svg class="icon"><use href="#i-wheat"></use></svg><span data-i18n="role_farmer">Farmer</span></button>
+            <button class="role-card" type="button" data-role="traveler"><svg class="icon"><use href="#i-plane"></use></svg><span data-i18n="role_traveler">Traveler</span></button>
+            <button class="role-card" type="button" data-role="fitness_trainer"><svg class="icon"><use href="#i-activity"></use></svg><span data-i18n="role_fitness_trainer">Fitness Trainer</span></button>
+            <button class="role-card" type="button" data-role="researcher"><svg class="icon"><use href="#i-flask-conical"></use></svg><span data-i18n="role_researcher">Researcher</span></button>
+            <button class="role-card" type="button" data-role="runner"><svg class="icon"><use href="#i-footprints"></use></svg><span data-i18n="role_runner">Runner</span></button>
+            <button class="role-card role-more" type="button" id="roleMoreToggle" aria-expanded="false"><svg class="icon i-chevron"><use href="#i-chevron-right"></use></svg><span>More</span></button>
+            <button class="role-card role-extra" type="button" data-role="beachgoer" hidden><svg class="icon"><use href="#i-waves"></use></svg><span data-i18n="role_beachgoer">Beachgoer</span></button>
+            <button class="role-card role-extra" type="button" data-role="event_planner" hidden><svg class="icon"><use href="#i-party-popper"></use></svg><span data-i18n="role_event_planner">Event Planner</span></button>
+            <button class="role-card role-extra" type="button" data-role="responder" hidden><svg class="icon"><use href="#i-siren"></use></svg><span data-i18n="role_responder">Responder</span></button>
+          </div>
+        </div>
+
+        <!-- Government official details -->
+        <div id="officialProfileSection" hidden>
+          <label class="field">
+            <span>Designation / Rank</span>
+            <input type="text" id="inputDesignation" placeholder="e.g. District Disaster Management Officer">
+          </label>
+          <label class="field">
+            <span>Jurisdiction / Office</span>
+            <input type="text" id="inputJurisdiction" placeholder="e.g. Hooghly District Control Room">
+          </label>
+          <p class="auth-legal">Department: <strong id="officialDeptDisplay">—</strong> · Command Centre access will be enabled for this account.</p>
         </div>
 
         <button class="btn btn-primary btn-block" id="btnFinishProfile" data-i18n="btn_finish_profile">Enter WeatherGPT</button>
@@ -848,10 +962,24 @@
             <span class="field-label" data-i18n="label_role_pref">Role</span>
             <div class="role-grid" id="settingRoleGrid">
               <button class="role-card" data-role="citizen"><svg class="icon"><use href="#i-home"></use></svg><span data-i18n="role_citizen">Citizen</span></button>
+              <button class="role-card" data-role="student"><svg class="icon"><use href="#i-backpack"></use></svg><span data-i18n="role_student">Student</span></button>
+              <button class="role-card" data-role="parent"><svg class="icon"><use href="#i-users"></use></svg><span data-i18n="role_parent">Parent</span></button>
               <button class="role-card" data-role="farmer"><svg class="icon"><use href="#i-wheat"></use></svg><span data-i18n="role_farmer">Farmer</span></button>
               <button class="role-card" data-role="traveler"><svg class="icon"><use href="#i-plane"></use></svg><span data-i18n="role_traveler">Traveler</span></button>
+              <button class="role-card" data-role="fitness_trainer"><svg class="icon"><use href="#i-activity"></use></svg><span data-i18n="role_fitness_trainer">Fitness Trainer</span></button>
               <button class="role-card" data-role="researcher"><svg class="icon"><use href="#i-flask-conical"></use></svg><span data-i18n="role_researcher">Researcher</span></button>
-              <button class="role-card" data-role="official"><svg class="icon"><use href="#i-landmark"></use></svg><span data-i18n="role_official">Official</span></button>
+              <button class="role-card" data-role="runner"><svg class="icon"><use href="#i-footprints"></use></svg><span data-i18n="role_runner">Runner</span></button>
+              <button class="role-card" data-role="beachgoer"><svg class="icon"><use href="#i-waves"></use></svg><span data-i18n="role_beachgoer">Beachgoer</span></button>
+              <button class="role-card" data-role="event_planner"><svg class="icon"><use href="#i-party-popper"></use></svg><span data-i18n="role_event_planner">Event Planner</span></button>
+              <button class="role-card" data-role="responder"><svg class="icon"><use href="#i-siren"></use></svg><span data-i18n="role_responder">Responder</span></button>
+            </div>
+            <div class="settings-card" id="officialAccountInfo" hidden style="margin-top:12px; padding:0;">
+              <p class="muted small"><svg class="icon-sm"><use href="#i-landmark"></use></svg> Government Official account — full access including Command Centre.</p>
+              <div class="context-grid">
+                <div><small>Department</small><strong id="officialAccountDept">—</strong></div>
+                <div><small>Designation</small><strong id="officialAccountDesignation">—</strong></div>
+                <div><small>Jurisdiction</small><strong id="officialAccountJurisdiction">—</strong></div>
+              </div>
             </div>
           </div>
 
