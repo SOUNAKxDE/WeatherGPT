@@ -12,7 +12,6 @@
 </head>
 <body>
 
-<!-- ================= SPLASH / LOADING VIEW ================= -->
 <section class="view-splash" id="view-splash" aria-hidden="true">
   <div class="splash-inner">
     <img src="logo.png" alt="WeatherGPT" class="splash-logo">
@@ -253,7 +252,6 @@
   <circle cx="12" cy="12" r="2" /></symbol>
 </svg>
 
-<!-- ================= LANGUAGE GATE VIEW ================= -->
 <section class="view" id="view-language">
   <div class="lang-gate">
     <button class="icon-btn lang-gate-back" id="langGateBack" aria-label="Back" hidden><svg class="icon-md"><use href="#i-x"></use></svg></button>
@@ -264,7 +262,6 @@
   </div>
 </section>
 
-<!-- ================= LANDING VIEW ================= -->
 <section class="view" id="view-landing">
   <header class="nav">
     <div class="brand">
@@ -392,7 +389,6 @@
   </footer>
 </section>
 
-<!-- ================= AUTH VIEW ================= -->
 <section class="view view-auth" id="view-auth" hidden>
   <div class="auth-shell">
     <div class="auth-side">
@@ -407,8 +403,7 @@
     </div>
     <div class="auth-panel">
 
-      <!-- Step 1: identifier -->
-      <div class="auth-step" id="step-identifier">
+            <div class="auth-step" id="step-identifier">
         <button class="auth-back" id="backToLanding" aria-label="Back">←</button>
         <h3 data-i18n="auth_welcome_title">Log in or sign up</h3>
         <p class="auth-hint" data-i18n="auth_welcome_sub">We'll send a one-time code to verify it's you — no password to remember.</p>
@@ -419,8 +414,7 @@
           <button class="seg-btn" data-account="official" type="button"><svg class="icon icon-sm"><use href="#i-landmark"></use></svg> Government Official</button>
         </div>
 
-        <!-- Citizen sign-in -->
-        <div id="citizenAuthFields">
+                <div id="citizenAuthFields">
           <div class="segmented" id="authModeSwitch">
             <button class="seg-btn active" data-mode="phone" data-i18n="tab_phone">Phone</button>
             <button class="seg-btn" data-mode="email" data-i18n="tab_email">Email</button>
@@ -451,8 +445,7 @@
           <p class="auth-legal">By continuing you agree to WeatherGPT's Terms and acknowledge the Privacy Notice, including consent settings for SOS location sharing.</p>
         </div>
 
-        <!-- Government official sign-in -->
-        <div id="officialAuthFields" hidden>
+                <div id="officialAuthFields" hidden>
           <label class="field">
             <span>Government Employee ID</span>
             <input type="text" id="inputEmployeeId" placeholder="e.g. WB-DM-04821" autocomplete="off">
@@ -485,8 +478,7 @@
         </div>
       </div>
 
-      <!-- Step 2: OTP -->
-      <div class="auth-step" id="step-otp" hidden>
+            <div class="auth-step" id="step-otp" hidden>
         <button class="auth-back" id="backToIdentifier" aria-label="Back">←</button>
         <h3 data-i18n="otp_title" id="otpTitle">Enter the code</h3>
         <p class="auth-hint"><span id="otpHintPrefix">We sent a 6-digit code to</span> <strong id="otpDestination">+91 98765 43210</strong>. <button class="link-btn" id="btnEditDestination">Edit</button></p>
@@ -506,8 +498,7 @@
         <p class="resend-row">Didn't get it? <button class="link-btn" id="btnResend" disabled>Resend in <span id="resendTimer">30</span>s</button></p>
       </div>
 
-      <!-- Step 3: quick profile -->
-      <div class="auth-step" id="step-profile" hidden>
+            <div class="auth-step" id="step-profile" hidden>
         <h3 id="profileTitle" data-i18n="profile_title">A couple of quick things</h3>
         <p class="auth-hint" id="profileSub" data-i18n="profile_sub">This helps us personalize your home screen. You can change all of this later.</p>
 
@@ -567,8 +558,7 @@
           <select id="inputCity"></select>
         </label>
 
-        <!-- Citizen persona picker -->
-        <div id="citizenPersonaSection">
+                <div id="citizenPersonaSection">
           <span class="field-label" data-i18n="label_role">I'm mainly here as a</span>
           <div class="role-grid" id="roleGrid">
             <button class="role-card active" type="button" data-role="citizen"><svg class="icon"><use href="#i-home"></use></svg><span data-i18n="role_citizen">Citizen</span></button>
@@ -586,8 +576,7 @@
           </div>
         </div>
 
-        <!-- Government official details -->
-        <div id="officialProfileSection" hidden>
+                <div id="officialProfileSection" hidden>
           <label class="field">
             <span>Designation / Rank</span>
             <input type="text" id="inputDesignation" placeholder="e.g. District Disaster Management Officer">
@@ -606,12 +595,10 @@
   </div>
 </section>
 
-<!-- ================= APP SHELL ================= -->
 <section class="view view-app" id="view-app" hidden>
   <div class="app-shell">
 
-    <!-- Mobile top bar -->
-    <div class="mobile-topbar">
+        <div class="mobile-topbar">
       <button class="icon-btn" id="btnOpenSidebar" aria-label="Open menu"><svg class="icon-md"><use href="#i-menu"></use></svg></button>
       <div class="brand small"><img src="logo.png" alt="WeatherGPT" class="brand-mark small"><span class="brand-name">WeatherGPT</span></div>
       <div class="mobile-topbar-actions">
@@ -622,8 +609,7 @@
 
     <div class="sidebar-scrim" id="sidebarScrim"></div>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar">
       <div class="sidebar-head">
         <div class="brand"><img src="logo.png" alt="WeatherGPT" class="brand-mark"><span class="brand-name">WeatherGPT</span></div>
         <button class="icon-btn js-settings-trigger" id="btnSettingsSidebar" aria-label="Settings" aria-haspopup="true" aria-expanded="false"><svg class="icon-md"><use href="#i-settings"></use></svg></button>
@@ -659,11 +645,9 @@
       </button>
     </aside>
 
-    <!-- Main content -->
-    <main class="main">
+        <main class="main">
 
-      <!-- ===== TODAY'S FORECAST ===== -->
-      <section class="panel" id="panel-today" hidden>
+            <section class="panel" id="panel-today" hidden>
         <div class="panel-header">
           <div>
             <h1 id="homeGreeting">Good afternoon, Traveler</h1>
@@ -716,8 +700,7 @@
         <div class="alerts-preview" id="alertsPreview"></div>
       </section>
 
-      <!-- ===== CHAT ===== -->
-      <section class="panel panel-chat" id="panel-chat">
+            <section class="panel panel-chat" id="panel-chat">
         <div class="chat-container">
           <div class="chat-messages" id="chatMessages">
             <div class="chat-empty" id="chatEmpty">
@@ -744,8 +727,7 @@
         </div>
       </section>
 
-      <!-- ===== MAP ===== -->
-      <section class="panel" id="panel-map" hidden>
+            <section class="panel" id="panel-map" hidden>
         <div class="panel-header">
           <div><h1 data-i18n="map_title">Map & Hazard Layers</h1><p class="muted">Radar, satellite, lightning, flood and SOS overlays for your region</p></div>
         </div>
@@ -773,8 +755,7 @@
         </div>
       </section>
 
-      <!-- ===== ALERTS ===== -->
-      <section class="panel" id="panel-alerts" hidden>
+            <section class="panel" id="panel-alerts" hidden>
         <div class="panel-header">
           <div><h1 data-i18n="alerts_title">Alerts & Warnings</h1><p class="muted" data-i18n="alerts_sub">Official warnings, watches and personalized advisories</p></div>
         </div>
@@ -787,8 +768,7 @@
         <div class="alert-list" id="alertList"></div>
       </section>
 
-      <!-- ===== PLAN ===== -->
-      <section class="panel" id="panel-plan" hidden>
+            <section class="panel" id="panel-plan" hidden>
         <div class="panel-header">
           <div><h1 data-i18n="plan_title">Plan</h1><p class="muted" data-i18n="plan_sub">Weather-aware tools for travel, farming, fitness and events</p></div>
         </div>
@@ -868,8 +848,7 @@
         </div>
       </section>
 
-      <!-- ===== CLIMATE / RESEARCH ===== -->
-      <section class="panel" id="panel-climate" hidden>
+            <section class="panel" id="panel-climate" hidden>
         <div class="panel-header">
           <div><h1 data-i18n="climate_title">Climate & Research</h1><p class="muted" data-i18n="climate_sub">Historical trends, anomalies and model access</p></div>
         </div>
@@ -890,8 +869,7 @@
         </div>
       </section>
 
-      <!-- ===== COMMAND CENTRE (official role) ===== -->
-      <section class="panel" id="panel-command" hidden>
+            <section class="panel" id="panel-command" hidden>
         <div class="panel-header">
           <div><h1 data-i18n="command_title">Emergency Command Centre</h1><p class="muted" data-i18n="command_sub">Situation overview for authorized disaster-management officers</p></div>
           <span class="role-tag"><svg class="icon-sm"><use href="#i-landmark"></use></svg> <span data-i18n="restricted_note_command">Official view</span></span>
@@ -911,8 +889,7 @@
         </div>
       </section>
 
-      <!-- ===== SOS ===== -->
-      <section class="panel panel-sos" id="panel-sos" hidden>
+            <section class="panel panel-sos" id="panel-sos" hidden>
         <div class="sos-shell">
           <div class="sos-main" id="sosMain">
             <p class="sos-eyebrow" data-i18n="sos_title">EMERGENCY SOS</p>
@@ -950,8 +927,7 @@
         </div>
       </section>
 
-      <!-- ===== PROFILE ===== -->
-      <section class="panel" id="panel-profile" hidden>
+            <section class="panel" id="panel-profile" hidden>
         <div class="panel-header"><div><h1 data-i18n="profile_settings_title">Profile & Settings</h1><p class="muted">Preferences, accessibility and consent</p></div></div>
 
         <div class="profile-grid">
@@ -1035,16 +1011,13 @@
   </div>
 </section>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- Location switcher popover -->
 <div class="popover" id="locationPopover" hidden>
   <p class="popover-title">Switch location</p>
   <div id="locationPopoverList"></div>
 </div>
 
-<!-- Quick settings popover -->
 <div class="popover settings-popover" id="settingsPopover" hidden role="menu" aria-label="Settings">
   <p class="popover-title">Settings</p>
 
