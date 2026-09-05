@@ -436,6 +436,7 @@ body.reduced-motion .radar-blip{ animation:none; opacity:.7; }
 .alert-card.sev-advisory{ border-left-color:var(--accent-2); }
 .alert-body{ flex:1; min-width:0; }
 .alert-title{ font-weight:700; font-size:.93rem; margin-bottom:.2rem; }
+.alert-live-tag{ display:inline-block; font-size:.62rem; font-weight:700; letter-spacing:.04em; padding:.1rem .4rem; border-radius:var(--radius-sm); background:var(--safe); color:#04140c; vertical-align:middle; margin-left:.3rem; }
 .alert-meta{ font-size:.75rem; color:var(--text-faint); margin-top:.4rem; font-family:var(--font-mono); }
 .alert-sev-tag{ flex-shrink:0; font-size:.66rem; text-transform:uppercase; font-weight:700; letter-spacing:.04em; padding:.2rem .55rem; border-radius:var(--radius-sm); background:var(--bg-3); color:var(--text-dim); height:fit-content; }
 

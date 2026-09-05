@@ -478,6 +478,7 @@ async function refreshWeatherFor(location){
     if(state.user.location !== location) return; // guard against a late resolve after another switch
     CITIES[location] = { ...(CITIES[location]||{}), ...live };
     renderHome();
+    if($('#panel-alerts') && !$('#panel-alerts').hidden) renderAlerts(); // keep the full Alerts panel in sync too, not just the Home preview
     if(live.stale) toast('Showing last-known weather — you appear to be offline');
   }catch(err){
     console.warn('Live weather unavailable for', location, err);
@@ -614,8 +615,50 @@ function renderLifestyle(d){
     </div>`).join('');
 }
 
+/**
+ * Derives alert cards directly from whatever is currently in `currentCityData()`
+ * — real live Open-Meteo numbers when available, seed data otherwise — instead
+ * of only ever showing the 4 fixed cards in data.js. These are recomputed on
+ * every render, so they track the actual numbers on screen and clear
+ * themselves once conditions drop back below the threshold.
+ */
+function deriveLiveAlerts(){
+  const d = currentCityData();
+  const out = [];
+  if(d.rain >= 70){
+    out.push({ sev:'warning', icon:'cloud-lightning', title:`Heavy Rain Likely — ${state.user.location.split(',')[0]}`,
+      body:`Current rain-chance reading is ${d.rain}% — expect significant rainfall today. Carry rain protection and allow extra travel time.`,
+      time:'Live · based on current conditions', source:'WeatherGPT (derived from live forecast data)', live:true });
+  } else if(d.rain >= 45){
+    out.push({ sev:'watch', icon:'cloud-rain', title:`Rain Watch — ${state.user.location.split(',')[0]}`,
+      body:`Rain chance is at ${d.rain}% — keep an umbrella handy and check again before heading out.`,
+      time:'Live · based on current conditions', source:'WeatherGPT (derived from live forecast data)', live:true });
+  }
+  if(d.aqi >= 150){
+    out.push({ sev:'warning', icon:'activity', title:`Unhealthy Air Quality — AQI ${d.aqi}`,
+      body:`Air quality is currently Unhealthy. Limit prolonged outdoor exertion, especially for children, older adults and anyone with respiratory conditions.`,
+      time:'Live · based on current AQI reading', source:'WeatherGPT (derived from live air-quality data)', live:true });
+  } else if(d.aqi >= 100){
+    out.push({ sev:'advisory', icon:'activity', title:`Air Quality Advisory — AQI ${d.aqi}`,
+      body:`Air quality is Poor for sensitive groups. Consider limiting extended outdoor activity.`,
+      time:'Live · based on current AQI reading', source:'WeatherGPT (derived from live air-quality data)', live:true });
+  }
+  if(d.wind >= 35){
+    out.push({ sev:'watch', icon:'wind', title:`High Wind Advisory — ${d.wind} km/h`,
+      body:`Sustained wind is running high at ${d.wind} km/h. Secure loose outdoor items and use caution on exposed roads.`,
+      time:'Live · based on current conditions', source:'WeatherGPT (derived from live forecast data)', live:true });
+  }
+  if(d.uv >= 9){
+    out.push({ sev:'advisory', icon:'sun', title:`Extreme UV — Index ${d.uv}`,
+      body:`UV index is Extreme today. Seek shade, wear sunscreen, and avoid prolonged midday sun exposure.`,
+      time:'Live · based on current conditions', source:'WeatherGPT (derived from live forecast data)', live:true });
+  }
+  return out;
+}
+function allAlerts(){ return [...deriveLiveAlerts(), ...ALERTS]; }
+
 function renderAlertsPreview(){
-  $('#alertsPreview').innerHTML = ALERTS.slice(0,2).map(a=> alertCardHtml(a)).join('');
+  $('#alertsPreview').innerHTML = allAlerts().slice(0,2).map(a=> alertCardHtml(a)).join('');
 }
 
 function alertCardHtml(a){
@@ -623,7 +666,7 @@ function alertCardHtml(a){
   return `<div class="alert-card sev-${a.sev}">
     <div class="alert-icon icon-tile ${tileClass}">${ic(a.icon,'icon-md')}</div>
     <div class="alert-body">
-      <div class="alert-title">${a.title}</div>
+      <div class="alert-title">${a.title}${a.live?' <span class="alert-live-tag">LIVE</span>':''}</div>
       <p class="muted small">${a.body}</p>
       <div class="alert-meta">${a.time} · ${a.source}</div>
     </div>
@@ -631,9 +674,10 @@ function alertCardHtml(a){
   </div>`;
 }
 function renderAlerts(filter='all'){
-  const list = filter==='all' ? ALERTS : ALERTS.filter(a=>a.sev===filter);
+  const all = allAlerts();
+  const list = filter==='all' ? all : all.filter(a=>a.sev===filter);
   $('#alertList').innerHTML = list.length ? list.map(alertCardHtml).join('') : `<p class="muted">No ${filter} alerts right now.</p>`;
-  $('#alertBadge').textContent = ALERTS.filter(a=>a.sev==='warning').length;
+  $('#alertBadge').textContent = all.filter(a=>a.sev==='warning').length;
 }
 function initAlertTabs(){
   $$('#alertTabs .tab').forEach(tab=>{
@@ -975,12 +1019,15 @@ function initPlan(){
   if($('#travelDate')) $('#travelDate').value = todayStr;
 
   $('#btnCheckTravel').addEventListener('click', ()=>{
-    const dest = $('#travelDest').value.trim() || 'your destination';
-    const data = CITIES[Object.keys(CITIES).find(c=>c.toLowerCase().includes(dest.toLowerCase()))] || pick(Object.values(CITIES));
+    const destRaw = $('#travelDest').value.trim() || 'your destination';
+    const dest = escapeHtml(destRaw);
+    const found = findCity(destRaw);
+    const data = found.data;
     const box = $('#travelResult');
     box.classList.add('show');
     box.innerHTML = `<div class="result-card">
       <h4>${ICONS[data.icon]} ${dest}</h4>
+      ${!found.matched ? `<p class="muted small">No exact match for "${dest}" in our demo city list — showing conditions for ${escapeHtml(found.resolvedName)} instead as a stand-in.</p>` : ''}
       <p>${data.desc}, ${fmtTemp(data.temp)} (feels like ${fmtTemp(data.feels)}). Rain chance ${data.rain}%, wind ${data.wind} km/h.</p>
       <p>${data.rain>55 ? 'Pack rainwear and build buffer time into transfers.' : 'Conditions look manageable — pack light layers.'}</p>
       <div class="result-tags">
@@ -992,7 +1039,7 @@ function initPlan(){
   });
 
   $('#btnCheckAgri').addEventListener('click', ()=>{
-    const crop = $('#agriCrop').value; const loc = $('#agriLoc').value.trim();
+    const crop = $('#agriCrop').value; const loc = escapeHtml($('#agriLoc').value.trim());
     const d = currentCityData();
     const box = $('#agriResult'); box.classList.add('show');
     const irrigate = d.rain < 35;
@@ -1010,15 +1057,21 @@ function initPlan(){
 
   $('#btnCheckFitness').addEventListener('click', ()=>{
     const act = $('#fitnessActivity').value;
+    const d = currentCityData();
     const box = $('#fitnessResult'); box.classList.add('show');
+    // Derive the safe/caution/avoid windows from today's actual numbers
+    // instead of a fixed hardcoded time range, so it reacts to real UV/heat/rain.
+    const morningRain = Math.max(2, Math.round(d.rain*0.35));
+    const eveningRain = Math.round(d.rain*0.7);
+    const middayNote = d.uv>=8 ? `UV index reaches ${d.uv} (Very High) and feels-like hits ${fmtTemp(d.feels)}` : d.uv>=6 ? `UV index reaches ${d.uv} (High) and feels-like hits ${fmtTemp(d.feels)}` : `feels-like reaches ${fmtTemp(d.feels)}`;
     box.innerHTML = `<div class="result-card">
-      <h4>${ic('footprints')} Best window for ${act}</h4>
-      <p><strong>6:10 – 7:20 AM</strong> is safest today — cooler temperatures, low UV, and rain chance under 15%.</p>
-      <p>Avoid 12:00–3:30 PM: UV index and heat stress both peak in that window.</p>
+      <h4>${ic('footprints')} Best window for ${escapeHtml(act)}</h4>
+      <p><strong>6:10 – 7:20 AM</strong> looks safest today — cooler temperatures, ${d.uv<6?'low':'moderate'} UV, and rain chance around ${morningRain}%.</p>
+      <p>Avoid 12:00–3:30 PM: ${middayNote}.</p>
       <div class="result-tags">
-        <span class="result-tag good">6:10–7:20 AM: Safe</span>
-        <span class="result-tag warn">5:30–7:00 PM: Caution — humidity high</span>
-        <span class="result-tag bad">12:00–3:30 PM: Avoid</span>
+        <span class="result-tag good">6:10–7:20 AM: Safe (~${morningRain}% rain)</span>
+        <span class="result-tag warn">5:30–7:00 PM: Caution — ~${eveningRain}% rain, ${d.humidity}% humidity</span>
+        <span class="result-tag ${d.uv>=6?'bad':'warn'}">12:00–3:30 PM: Avoid (UV ${d.uv})</span>
       </div>
     </div>`;
   });
@@ -1026,13 +1079,20 @@ function initPlan(){
   $('#btnCheckEvent').addEventListener('click', ()=> renderEventPlan());
 
   $('#btnCheckMarine').addEventListener('click', ()=>{
-    const loc = $('#marineLoc').value.trim();
+    const locRaw = $('#marineLoc').value.trim();
+    const loc = escapeHtml(locRaw);
+    const d = currentCityData();
     const box = $('#marineResult'); box.classList.add('show');
-    const wave = (rand(0.6,2.2)).toFixed(1);
+    // Seeded on location + today's date (not raw Math.random()) so repeated
+    // clicks are stable within a day, and wave height scales with today's
+    // actual wind speed instead of being fully unrelated to real conditions.
+    const today = new Date().toISOString().slice(0,10);
+    const rnd = seededRandom('marine|'+(locRaw||state.user.location)+'|'+today);
+    const wave = (0.4 + d.wind/22 + rnd()*0.6).toFixed(1);
     const safe = wave < 1.6;
     box.innerHTML = `<div class="result-card">
-      <h4>${ic('waves')} ${loc}</h4>
-      <p>Wave height ~${wave} m, wind onshore at ${Math.round(rand(10,26))} km/h. Tide: next high tide in ${Math.round(rand(1,6))}h.</p>
+      <h4>${ic('waves')} ${loc || state.user.location.split(',')[0]}</h4>
+      <p>Wave height ~${wave} m, wind onshore at ${d.wind} km/h. Tide: next high tide in ${Math.round(1+rnd()*5)}h.</p>
       <p>${safe ? 'Conditions are within a generally safe range for swimming close to shore — still watch for rip currents.' : 'Elevated wave height — exercise caution, and check local lifeguard flags before entering the water.'}</p>
       <div class="result-tags">
         <span class="result-tag ${safe?'good':'warn'}">${safe?'Safe window':'Use caution'}</span>
@@ -1056,12 +1116,19 @@ function seededRandom(seedStr){
     return ((h ^ (h>>>14)) >>> 0) / 4294967296;
   };
 }
+/**
+ * Looks for `loc` among the known demo cities. Returns both the matched
+ * data AND whether it was a real match, so callers can be honest about a
+ * miss instead of silently handing back an unrelated city's numbers.
+ */
 function findCity(loc){
   const key = Object.keys(CITIES).find(c=>c.toLowerCase().includes((loc||'').toLowerCase()));
-  return CITIES[key] || currentCityData();
+  if(key) return { data: CITIES[key], matched: true, resolvedName: key };
+  return { data: currentCityData(), matched: false, resolvedName: state.user.location };
 }
 function weatherForDate(loc, dateStr){
-  const base = findCity(loc);
+  const found = findCity(loc);
+  const base = found.data;
   const rnd = seededRandom(loc + '|' + dateStr);
   const rainDelta = Math.round(rnd()*45) - 16;
   const windDelta = Math.round(rnd()*10) - 4;
@@ -1071,7 +1138,9 @@ function weatherForDate(loc, dateStr){
     rain: Math.min(95, Math.max(4, base.rain + rainDelta)),
     wind: Math.max(4, base.wind + windDelta),
     icon: base.icon,
-    desc: base.desc
+    desc: base.desc,
+    matched: found.matched,
+    resolvedName: found.resolvedName
   };
 }
 function computeEventRisk(w, venue, guests){
@@ -1126,16 +1195,17 @@ function buildEventChecklist({type, venue, guests, w, backup}){
   return items;
 }
 function renderEventPlan(){
-  const name = $('#eventName').value.trim() || 'Your event';
+  const name = escapeHtml($('#eventName').value.trim() || 'Your event');
   const type = $('#eventType').value;
   const venue = $('#eventVenue').value;
-  const loc = $('#eventLoc').value.trim() || state.user.location;
+  const locRaw = $('#eventLoc').value.trim() || state.user.location;
+  const loc = escapeHtml(locRaw);
   const dateVal = $('#eventDate').value || new Date().toISOString().slice(0,10);
   const time = $('#eventTime').value || '18:00';
   const guests = Math.max(1, parseInt($('#eventGuests').value,10) || 1);
   const backup = $('#eventBackup').checked;
 
-  const w = weatherForDate(loc, dateVal);
+  const w = weatherForDate(locRaw, dateVal);
   const risk = computeEventRisk(w, venue, guests);
   const checklist = buildEventChecklist({type, venue, guests, w, backup});
 
@@ -1148,7 +1218,7 @@ function renderEventPlan(){
   const days = [-1,0,1].map(off=>{
     const d = new Date(base.getTime() + off*dayMs);
     const ds = d.toISOString().slice(0,10);
-    const dw = weatherForDate(loc, ds);
+    const dw = weatherForDate(locRaw, ds);
     return { offset:off, date:d, weather:dw, riskScore: venue!=='indoor' ? dw.rain + dw.wind*0.5 : 0 };
   });
   const bestOffset = venue==='indoor' ? 0 : days.slice().sort((a,b)=>a.riskScore-b.riskScore)[0].offset;
@@ -1169,6 +1239,8 @@ function renderEventPlan(){
         </div>
         <span class="risk-badge ${risk}">${riskLabel}</span>
       </div>
+
+      ${!w.matched ? `<p class="muted small" style="margin-top:.4rem">No exact weather station match for "${loc}" — showing estimates based on your home location (${escapeHtml(w.resolvedName)}) instead.</p>` : ''}
 
       <div class="event-weather-row">
         <div><small>Condition</small><strong>${w.desc}</strong></div>
@@ -1203,9 +1275,12 @@ function renderClimate(){
   const metricKey = $('#climateMetric').value;
   const years = +$('#climateRange').value;
   const series = CLIMATE_SERIES[metricKey];
+  // Seeded (not Math.random()) so the same metric+range always redraws the
+  // same chart instead of visibly reshuffling every time you reopen it.
+  const rnd = seededRandom('climate|'+metricKey+'|'+years);
   const data = [];
   for(let i=years-1;i>=0;i--){
-    const val = series.base + series.trend*(years-1-i) + (Math.sin(i*0.7)*series.noise*0.5) + rand(-series.noise,series.noise)*0.5;
+    const val = series.base + series.trend*(years-1-i) + (Math.sin(i*0.7)*series.noise*0.5) + (rnd()*2-1)*series.noise*0.5;
     data.push(Math.max(0,val));
   }
   drawChart(data, series);
