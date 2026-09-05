@@ -586,6 +586,11 @@ body.reduced-motion .think-spinner::after, body.reduced-motion .think-bar{ anima
 .climate-controls{ display:flex; gap:1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
 .climate-controls .field{ margin-bottom:0; min-width:200px; }
 .chart-card{ background:var(--panel); border:1px solid var(--border-soft); border-radius:var(--radius); padding:1.3rem; margin-bottom:1.2rem; }
+.chart-card canvas{ display:block; width:100%; height:260px; }
+.chart-legend{ display:flex; gap:1.2rem; flex-wrap:wrap; margin-top:.7rem; font-size:.76rem; color:var(--text-faint); }
+.chart-legend span{ display:inline-flex; align-items:center; gap:.4rem; }
+.chart-legend i{ width:14px; height:0; border-top:2.5px solid currentColor; display:inline-block; }
+.chart-legend .lg-trend i{ border-top-style:dashed; }
 .climate-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.9rem; margin-bottom:1.2rem; }
 .climate-stat{ background:var(--panel); border:1px solid var(--border-soft); border-radius:12px; padding:1rem 1.1rem; }
 .climate-stat strong{ display:block; font-family:var(--font-mono); font-size:1.3rem; color:var(--accent); }

@@ -455,6 +455,11 @@ function gotoView(name){
   $$('.side-link[data-view]').forEach(b=> b.classList.toggle('active', b.dataset.view===name));
   toggleSidebar(false);
   if(name==='chat') $('#chatInput').focus();
+  // The climate chart is drawn on a <canvas>, so it needs real, visible
+  // dimensions to measure itself against. Redraw now that the panel is
+  // actually unhidden, or it stays blank/broken from being sized while
+  // .panel[hidden] made the canvas's box 0x0 (e.g. right after enterApp()).
+  if(name==='climate') renderClimate();
 }
 
 function currentCityData(){
@@ -1283,7 +1288,7 @@ function renderClimate(){
     const val = series.base + series.trend*(years-1-i) + (Math.sin(i*0.7)*series.noise*0.5) + (rnd()*2-1)*series.noise*0.5;
     data.push(Math.max(0,val));
   }
-  drawChart(data, series);
+  drawChart(data, series, years);
 
   const avg = data.reduce((a,b)=>a+b,0)/data.length;
   const first = data[0], last = data[data.length-1];
@@ -1294,25 +1299,33 @@ function renderClimate(){
     <div class="climate-stat"><strong>${Math.max(...data).toFixed(1)}</strong><span>Peak value</span></div>
     <div class="climate-stat"><strong>${Math.min(...data).toFixed(1)}</strong><span>Lowest value</span></div>`;
 }
-function drawChart(data, series){
+function drawChart(data, series, years){
   const canvas = $('#climateChart');
+  if(!canvas) return;
   const dpr = window.devicePixelRatio || 1;
-  const w = canvas.clientWidth || canvas.parentElement.clientWidth - 48;
+  // Canvas fills its card via CSS (width:100%); measure that box rather than
+  // guessing from the parent, and fall back to a sane minimum so a chart
+  // drawn while its panel is still hidden (clientWidth === 0) never ends up
+  // with a negative/zero size that renders blank.
+  const w = Math.max(canvas.clientWidth || canvas.parentElement.clientWidth - 48, 240);
   const h = 260;
   canvas.width = w*dpr; canvas.height = h*dpr;
   canvas.style.width = w+'px'; canvas.style.height=h+'px';
   const ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
   ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,w,h);
 
-  const pad = {l:40,r:16,t:16,b:26};
+  const pad = {l:44,r:16,t:16,b:30};
   const max = Math.max(...data)*1.12, min = Math.min(...data)*0.9;
   const xStep = (w-pad.l-pad.r)/(data.length-1);
   const yFor = v => h-pad.b - ((v-min)/(max-min||1))*(h-pad.t-pad.b);
+  const thisYear = new Date().getFullYear();
 
-  
+  // Horizontal gridlines + y-axis value labels
   ctx.strokeStyle = 'rgba(109,132,194,.12)'; ctx.lineWidth=1;
   ctx.fillStyle = 'rgba(154,168,199,.8)'; ctx.font='11px IBM Plex Mono, monospace';
+  ctx.textAlign = 'left';
   for(let i=0;i<=4;i++){
     const y = pad.t + (h-pad.t-pad.b)*i/4;
     ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
@@ -1320,7 +1333,19 @@ function drawChart(data, series){
     ctx.fillText(val.toFixed(0), 4, y+3);
   }
 
-  
+  // X-axis year labels — without these there was no way to tell which
+  // point on the line corresponded to which year, which is why the chart
+  // read as "just a squiggle." Show start / midpoint / current year.
+  ctx.textAlign = 'center';
+  const tickIdxs = data.length > 2 ? [0, Math.floor((data.length-1)/2), data.length-1] : [0, data.length-1];
+  tickIdxs.forEach(i=>{
+    const x = pad.l+i*xStep;
+    const yearLabel = i===data.length-1 ? String(thisYear) : String(thisYear-(data.length-1-i));
+    ctx.fillText(yearLabel, Math.min(Math.max(x, pad.l+18), w-pad.r-18), h-8);
+  });
+  ctx.textAlign = 'left';
+
+  // Area fill under the line
   const grad = ctx.createLinearGradient(0,pad.t,0,h-pad.b);
   grad.addColorStop(0,'rgba(75,172,206,.28)'); grad.addColorStop(1,'rgba(75,172,206,0)');
   ctx.beginPath();
@@ -1328,18 +1353,33 @@ function drawChart(data, series){
   ctx.lineTo(pad.l+(data.length-1)*xStep, h-pad.b); ctx.lineTo(pad.l,h-pad.b); ctx.closePath();
   ctx.fillStyle = grad; ctx.fill();
 
-  
+  // The actual (noisy) data line
   ctx.beginPath();
   data.forEach((v,i)=>{ const x=pad.l+i*xStep, y=yFor(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
   ctx.strokeStyle = '#4bacce'; ctx.lineWidth=2.2; ctx.lineJoin='round'; ctx.stroke();
 
-  
+  // Dashed straight-line trend from first to last point
   ctx.setLineDash([4,4]);
   ctx.beginPath();
   ctx.moveTo(pad.l, yFor(data[0]));
   ctx.lineTo(pad.l+(data.length-1)*xStep, yFor(data[data.length-1]));
   ctx.strokeStyle = 'rgba(201,143,78,.7)'; ctx.lineWidth=1.4; ctx.stroke();
   ctx.setLineDash([]);
+
+  renderChartLegend(series);
+}
+function renderChartLegend(series){
+  const card = $('#climateChart')?.parentElement;
+  if(!card) return;
+  let legend = card.querySelector('.chart-legend');
+  if(!legend){
+    legend = document.createElement('div');
+    legend.className = 'chart-legend';
+    card.appendChild(legend);
+  }
+  legend.innerHTML = `
+    <span class="lg-actual" style="color:#4bacce"><i></i>${series.label}</span>
+    <span class="lg-trend" style="color:#c98f4e"><i></i>Overall trend</span>`;
 }
 function initClimate(){
   $('#climateMetric').addEventListener('change', renderClimate);
