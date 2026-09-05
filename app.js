@@ -714,6 +714,70 @@ function initChat(){
   $('#btnLangChat').addEventListener('click', ()=> openLanguageGate('app'));
 }
 
+/**
+ * Returns a short sequence of "what I'm doing" status lines tailored to the
+ * question being asked, so the thinking indicator in sendMessage() feels
+ * like it's actually working the problem rather than just waiting.
+ * Mirrors the same keyword categories generateReply() branches on.
+ */
+function thinkingStepsFor(text, cityShort){
+  const t = text.toLowerCase();
+  const loc = `Pulling live conditions for <span class="think-highlight">${cityShort}</span>`;
+  if(/umbrella|rain|shower/.test(t)) return [
+    'Reading your question', loc,
+    'Scanning rain radar & hourly precipitation odds', 'Timing the driest window'
+  ];
+  if(/run|jog|exercise|walk|workout|cycl/.test(t)) return [
+    'Reading your question', loc,
+    'Checking UV, heat and rain by hour', 'Finding the best outdoor window'
+  ];
+  if(/irrigat|crop|farm|field|soil/.test(t)) return [
+    'Reading your question', loc,
+    'Checking soil moisture & rain outlook', 'Weighing irrigation timing'
+  ];
+  if(/flood|inundat|water.?log/.test(t)) return [
+    'Reading your question',
+    'Checking river levels & drainage zones',
+    'Cross-referencing the flood-risk model', 'Assessing nearby routes'
+  ];
+  if(/lightning|thunder|storm/.test(t)) return [
+    'Reading your question',
+    'Tracking convective cells nearby',
+    'Estimating storm speed & direction', 'Drafting safety guidance'
+  ];
+  if(/travel|destination|trip|flight|airport/.test(t)) return [
+    'Reading your question', loc,
+    'Checking severe-weather risk on your route', 'Putting together packing notes'
+  ];
+  if(/aqi|air quality|pollution|pm2\.5|pollen/.test(t)) return [
+    'Reading your question', loc,
+    'Checking live air-quality readings', 'Assessing exposure risk'
+  ];
+  if(/climate|trend|history|historical|20 year|last \d+ years|anomaly/.test(t)) return [
+    'Reading your question',
+    'Pulling the 20-year rainfall record',
+    'Looking for trend anomalies'
+  ];
+  if(/shelter|evacuat|safe place/.test(t)) return [
+    'Reading your question',
+    'Checking nearby shelter capacity', 'Cross-checking hospital network status'
+  ];
+  if(/sos|emergency|help me|rescue/.test(t)) return [
+    'Reading your question', 'Checking for active local incidents'
+  ];
+  if(/wind|gust/.test(t)) return [
+    'Reading your question', loc, 'Checking wind speed & gust advisories'
+  ];
+  if(/temperature|hot|cold|heat/.test(t)) return [
+    'Reading your question', loc, 'Comparing against today\'s forecast range'
+  ];
+  if(/hello|hi\b|hey/.test(t)) return [ 'Reading your question' ];
+  return [
+    'Reading your question', loc,
+    'Cross-checking forecast models', 'Composing response'
+  ];
+}
+
 function sendMessage(text){
   text = (text||'').trim();
   if(!text) return;
@@ -728,17 +792,59 @@ function sendMessage(text){
   saveState();
 
   const wrap = $('#chatMessages');
-  const typingRow = el('div','msg msg-bot');
-  typingRow.innerHTML = `<div class="msg-avatar">${ic('cloud-sun')}</div><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  const cityShort = state.user.location.split(',')[0];
+  const steps = thinkingStepsFor(text, cityShort);
+  const reduced = document.body.classList.contains('reduced-motion');
+
+  const typingRow = el('div','msg msg-bot msg-thinking');
+  typingRow.innerHTML = `<div class="msg-avatar">${ic('cloud-sun')}</div>
+    <div class="msg-bubble">
+      <div class="think-wrap">
+        <div class="think-row">
+          <span class="think-spinner"></span>
+          <span class="think-text">${steps[0]}</span>
+        </div>
+        <div class="think-track"><div class="think-bar"></div></div>
+        <div class="think-log"></div>
+      </div>
+    </div>`;
   wrap.appendChild(typingRow); wrap.scrollTop = wrap.scrollHeight;
 
-  setTimeout(()=>{
-    typingRow.remove();
-    const reply = generateReply(text);
-    chat.messages.push({role:'bot', html: reply});
-    renderMessages();
-    saveState();
-  }, 700 + Math.random()*500);
+  const textEl = $('.think-text', typingRow);
+  const logEl = $('.think-log', typingRow);
+  const stepMs = reduced ? 1 : 520 + Math.random()*380;
+
+  function advance(i){
+    if(i >= steps.length){
+      setTimeout(()=>{
+        typingRow.remove();
+        const reply = generateReply(text);
+        chat.messages.push({role:'bot', html: reply});
+        renderMessages();
+        saveState();
+      }, reduced ? 0 : 240);
+      return;
+    }
+    const prevLine = el('div','think-log-item');
+    prevLine.innerHTML = `<span class="think-check">${ic('check')}</span><span>${steps[i-1].replace(/<[^>]+>/g,'')}</span>`;
+    logEl.appendChild(prevLine);
+
+    if(reduced){
+      textEl.innerHTML = steps[i];
+    } else {
+      textEl.classList.add('swap-out');
+      setTimeout(()=>{
+        textEl.innerHTML = steps[i];
+        textEl.classList.remove('swap-out');
+        textEl.classList.add('swap-in');
+        setTimeout(()=> textEl.classList.remove('swap-in'), 220);
+      }, 150);
+    }
+    wrap.scrollTop = wrap.scrollHeight;
+    setTimeout(()=> advance(i+1), stepMs);
+  }
+
+  setTimeout(()=> advance(1), stepMs);
 }
 
 function generateReply(q){
