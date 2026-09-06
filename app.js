@@ -84,6 +84,20 @@ function applyLanguage(lang){
   const quickLangSelect = $('#quickLanguageSelect');
   if(quickLangSelect) quickLangSelect.value = lang;
   try{ localStorage.setItem('weathergpt_lang', lang); }catch(e){}
+  // If we're already inside the app (not just the landing/auth flow), refresh
+  // the dynamically-built sections too — data-i18n only covers static markup,
+  // so home cards, alerts, map, climate and command views need a fresh render
+  // to pick up the new language immediately rather than on next navigation.
+  if(state.user && $('#view-app') && !$('#view-app').hidden){
+    applyUserToChrome();
+    if(typeof renderHome === 'function') renderHome();
+    if(typeof renderAlerts === 'function') renderAlerts();
+    if(typeof renderMap === 'function') renderMap();
+    if(typeof renderClimate === 'function') renderClimate();
+    if(typeof renderCommand === 'function') renderCommand();
+    if(typeof renderChatHistory === 'function') renderChatHistory();
+    if(typeof renderSavedLocations === 'function') renderSavedLocations();
+  }
 }
 let langGateOrigin = null;
 function openLanguageGate(origin){
@@ -230,7 +244,7 @@ function initAuth(){
     roleMoreToggle.addEventListener('click', ()=>{
       const expanded = roleMoreToggle.getAttribute('aria-expanded') === 'true';
       roleMoreToggle.setAttribute('aria-expanded', String(!expanded));
-      roleMoreToggle.querySelector('span').textContent = expanded ? 'More' : 'Less';
+      roleMoreToggle.querySelector('span').textContent = expanded ? t('role_more') : t('role_less');
       $$('#roleGrid .role-extra').forEach(c=> c.hidden = expanded);
     });
   }
@@ -267,21 +281,21 @@ function handleSendOtp(){
   if(authMode==='phone'){
     const val = $('#inputPhone').value.trim();
     if(!/^\d{10}$/.test(val)){
-      err.textContent = 'Enter a valid 10-digit mobile number.'; err.hidden = false; return;
+      err.textContent = t('error_invalid_phone'); err.hidden = false; return;
     }
     state.user.phone = '+91 ' + val.replace(/(\d{5})(\d{5})/, '$1 $2');
     $('#otpDestination').textContent = state.user.phone;
   } else {
     const val = $('#inputEmail').value.trim();
     if(!/^\S+@\S+\.\S+$/.test(val)){
-      err.textContent = 'Enter a valid email address.'; err.hidden = false; return;
+      err.textContent = t('error_invalid_email'); err.hidden = false; return;
     }
     state.user.email = val;
     $('#otpDestination').textContent = val;
   }
   $('#otpHintPrefix').textContent = 'We sent a 6-digit code to';
   switchAuthStep('otp');
-  toast('OTP sent (prototype) — enter any 6 digits');
+  toast(t('toast_otp_sent_phone'));
   $$('.otp-box')[0].value=''; $$('.otp-box').forEach(b=>b.value='');
   $$('.otp-box')[0].focus();
   startResendTimer();
@@ -293,10 +307,10 @@ function handleSendOtpOfficial(){
   const empId = $('#inputEmployeeId').value.trim();
   const email = $('#inputOfficialEmail').value.trim();
   if(!empId){
-    err.textContent = 'Enter your government employee ID.'; err.hidden = false; return;
+    err.textContent = t('error_employee_id_required'); err.hidden = false; return;
   }
   if(!/^\S+@\S+\.\S+$/.test(email)){
-    err.textContent = 'Enter a valid official email address.'; err.hidden = false; return;
+    err.textContent = t('error_invalid_official_email'); err.hidden = false; return;
   }
   state.user.employeeId = empId;
   state.user.email = email;
@@ -304,7 +318,7 @@ function handleSendOtpOfficial(){
   $('#otpDestination').textContent = email;
   $('#otpHintPrefix').textContent = 'We sent a government verification code to';
   switchAuthStep('otp');
-  toast('Verification code sent to official email (prototype) — enter any 6 digits');
+  toast(t('toast_otp_sent_official'));
   $$('.otp-box').forEach(b=>b.value='');
   $$('.otp-box')[0].focus();
   startResendTimer();
@@ -353,7 +367,7 @@ function handleVerifyOtp(){
   if(code.length!==6 || /\D/.test(code)){
     $('#otpError').hidden = false; return;
   }
-  toast('Verified ✓');
+  toast(t('toast_verified'));
   switchAuthStep('profile');
   $('#citizenPersonaSection').hidden = accountType !== 'citizen';
   $('#officialProfileSection').hidden = accountType !== 'official';
@@ -403,7 +417,7 @@ function enterApp(){
   renderCommand();
   buildLocationPopover();
   gotoView('chat');
-  toast(`Welcome, ${state.user.name || 'there'}`);
+  toast(`${t('toast_welcome')}, ${state.user.name || 'there'}`);
   refreshWeatherFor(state.user.location);
 }
 
@@ -427,7 +441,7 @@ function applyUserToChrome(){
     $('#officialAccountJurisdiction').textContent = state.user.jurisdiction || '—';
   }
   const h = new Date().getHours();
-  const greetWord = h<12?'Good morning':(h<17?'Good afternoon':'Good evening');
+  const greetWord = h<12?t('greet_morning'):(h<17?t('greet_afternoon'):t('greet_evening'));
   $('#homeGreeting').textContent = `${greetWord}, ${state.user.name || 'there'}`;
   $('#homeDate').textContent = new Date().toLocaleDateString(undefined, {weekday:'long', year:'numeric', month:'long', day:'numeric'});
 }
@@ -484,7 +498,7 @@ async function refreshWeatherFor(location){
     CITIES[location] = { ...(CITIES[location]||{}), ...live };
     renderHome();
     if($('#panel-alerts') && !$('#panel-alerts').hidden) renderAlerts(); // keep the full Alerts panel in sync too, not just the Home preview
-    if(live.stale) toast('Showing last-known weather — you appear to be offline');
+    if(live.stale) toast(t('toast_stale_weather'));
   }catch(err){
     console.warn('Live weather unavailable for', location, err);
     // No toast here: falling back to the seed/demo data silently is the right UX for a background refresh.
@@ -507,8 +521,8 @@ function renderHome(){
   $('#hwcHumidity').textContent = d.humidity+'%';
   $('#hwcWind').textContent = d.wind+' km/h';
   $('#hwcRain').textContent = d.rain+'%';
-  $('#hwcUv').textContent = d.uv + ' · ' + (d.uv>=8?'Very High':d.uv>=6?'High':d.uv>=3?'Moderate':'Low');
-  $('#hwcAqi').textContent = d.aqi + ' · ' + (d.aqi>150?'Unhealthy':d.aqi>100?'Poor':d.aqi>50?'Moderate':'Good');
+  $('#hwcUv').textContent = d.uv + ' · ' + (d.uv>=8?t('level_very_high'):d.uv>=6?t('level_high'):d.uv>=3?t('level_moderate'):t('level_low'));
+  $('#hwcAqi').textContent = d.aqi + ' · ' + (d.aqi>150?t('aqi_unhealthy'):d.aqi>100?t('aqi_poor'):d.aqi>50?t('level_moderate'):t('aqi_good'));
   $('#hwcPressure').textContent = d.pressure+' hPa';
 
   const hourly = (d.realHourly && d.realHourly.length) ? d.realHourly : genHourly(d);
@@ -681,7 +695,8 @@ function alertCardHtml(a){
 function renderAlerts(filter='all'){
   const all = allAlerts();
   const list = filter==='all' ? all : all.filter(a=>a.sev===filter);
-  $('#alertList').innerHTML = list.length ? list.map(alertCardHtml).join('') : `<p class="muted">No ${filter} alerts right now.</p>`;
+  const emptyKey = {all:'alerts_none_all', warning:'alerts_none_warning', watch:'alerts_none_watch', advisory:'alerts_none_advisory'}[filter] || 'alerts_none_all';
+  $('#alertList').innerHTML = list.length ? list.map(alertCardHtml).join('') : `<p class="muted">${t(emptyKey)}</p>`;
   $('#alertBadge').textContent = all.filter(a=>a.sev==='warning').length;
 }
 function initAlertTabs(){
@@ -705,7 +720,14 @@ function startNewChat(){
 }
 function renderChatHistory(){
   const wrap = $('#chatHistoryList');
-  if(!state.chats.length){ wrap.innerHTML=''; return; }
+  if(!state.chats.length){
+    wrap.innerHTML = `<div class="empty-state empty-state-sm">
+      <svg class="icon-md empty-state-icon"><use href="#i-message-circle"></use></svg>
+      <p class="empty-state-title">${t('empty_chats_title')}</p>
+      <p class="empty-state-sub">${t('empty_chats_sub')}</p>
+    </div>`;
+    return;
+  }
   wrap.innerHTML = state.chats.slice(0,12).map(c=>`<button class="history-item" data-id="${c.id}">${c.title}</button>`).join('');
   $$('.history-item', wrap).forEach(b=>{
     b.addEventListener('click', ()=>{ state.activeChatId=b.dataset.id; gotoView('chat'); renderMessages(); });
@@ -759,7 +781,7 @@ function initChat(){
     const disclaimerEl = $('.chat-disclaimer');
     if(disclaimerEl) disclaimerEl.style.display = ta.value.trim().length>0 ? 'none' : '';
   });
-  $('#btnVoice').addEventListener('click', ()=> toast('Voice input is available in the mobile app'));
+  $('#btnVoice').addEventListener('click', ()=> toast(t('toast_voice_unavailable')));
   $('#btnLangChat').addEventListener('click', ()=> openLanguageGate('app'));
 }
 
@@ -1294,10 +1316,10 @@ function renderClimate(){
   const first = data[0], last = data[data.length-1];
   const changePct = (((last-first)/Math.max(first,0.001))*100).toFixed(1);
   $('#climateStats').innerHTML = `
-    <div class="climate-stat"><strong>${avg.toFixed(1)}</strong><span>${years}-yr average (${series.unit})</span></div>
-    <div class="climate-stat"><strong>${changePct>0?'+':''}${changePct}%</strong><span>Change vs. ${years} yrs ago</span></div>
-    <div class="climate-stat"><strong>${Math.max(...data).toFixed(1)}</strong><span>Peak value</span></div>
-    <div class="climate-stat"><strong>${Math.min(...data).toFixed(1)}</strong><span>Lowest value</span></div>`;
+    <div class="climate-stat"><strong>${avg.toFixed(1)}</strong><span>${years}${t('climate_yr_average')} (${series.unit})</span></div>
+    <div class="climate-stat"><strong>${changePct>0?'+':''}${changePct}%</strong><span>${t('climate_change_vs').replace('{n}', years)}</span></div>
+    <div class="climate-stat"><strong>${Math.max(...data).toFixed(1)}</strong><span>${t('climate_peak_value')}</span></div>
+    <div class="climate-stat"><strong>${Math.min(...data).toFixed(1)}</strong><span>${t('climate_lowest_value')}</span></div>`;
 }
 function drawChart(data, series, years){
   const canvas = $('#climateChart');
@@ -1405,10 +1427,10 @@ const UNDERSERVED = ['Ward 9 — shelter capacity below demand','Riverside secto
 
 function renderCommand(){
   $('#commandStats').innerHTML = `
-    <div class="cstat"><strong>${INCIDENTS.length}</strong><span>Open incidents</span></div>
-    <div class="cstat"><strong>3</strong><span>Active hazard zones</span></div>
-    <div class="cstat"><strong>92%</strong><span>Mesh gateway uptime</span></div>
-    <div class="cstat"><strong>68%</strong><span>Shelter capacity used</span></div>`;
+    <div class="cstat"><strong>${INCIDENTS.length}</strong><span>${t('command_open_incidents')}</span></div>
+    <div class="cstat"><strong>3</strong><span>${t('command_active_hazard_zones')}</span></div>
+    <div class="cstat"><strong>92%</strong><span>${t('command_mesh_uptime')}</span></div>
+    <div class="cstat"><strong>68%</strong><span>${t('command_shelter_capacity')}</span></div>`;
   $('#incidentCount').textContent = `(${INCIDENTS.length})`;
   $('#incidentQueue').innerHTML = INCIDENTS.map(i=>`
     <div class="incident-row">
@@ -1432,9 +1454,9 @@ function initSos(){
   $('#btnResolveSos').addEventListener('click', resolveSos);
 }
 function urgencyFromTaps(n){
-  if(n>=6) return {label:'CRITICAL', cls:'bad'};
-  if(n>=3) return {label:'HIGH', cls:'warn'};
-  if(n>=1) return {label:'STANDARD', cls:''};
+  if(n>=6) return {label:t('urgency_critical'), cls:'bad'};
+  if(n>=3) return {label:t('urgency_high'), cls:'warn'};
+  if(n>=1) return {label:t('urgency_standard'), cls:''};
   return {label:'—', cls:''};
 }
 function handleSosTap(){
@@ -1471,7 +1493,7 @@ function cancelSos(){
   $('#sosTapCount').textContent = '0';
   $('#sosUrgencyLabel').textContent = '—';
   $('#sosStatus').hidden = true;
-  toast('SOS cancelled');
+  toast(t('toast_sos_cancelled'));
 }
 function dispatchSos(){
   state.sos.sending = false;
@@ -1484,7 +1506,7 @@ function dispatchSos(){
   $('#ctxConn').textContent = pick(['Direct (weak)','Mesh only','Direct (stable)']);
   $('#ctxHops').textContent = Math.floor(rand(1,4))+' nearby devices';
   $('#ctxLoc').textContent = state.user.location.split(',')[0] + ' · approx.';
-  toast('SOS transmitted — tracking status');
+  toast(t('toast_sos_transmitted'));
   progressLifecycle(0);
 }
 function progressLifecycle(i){
@@ -1499,7 +1521,7 @@ function resolveSos(){
   $('#sosStatus').hidden = true;
   $('#sosTapCount').textContent = '0';
   $('#sosUrgencyLabel').textContent = '—';
-  toast('Marked as resolved. Stay safe.');
+  toast(t('toast_sos_resolved'));
 }
 
 /**
@@ -1516,7 +1538,7 @@ function switchLocation(loc, opts={}){
   renderHome();
   buildLocationPopover();
   saveState();
-  if(!opts.silent) toast('Location switched to '+loc.split(',')[0]);
+  if(!opts.silent) toast(t('toast_location_switched')+' '+loc.split(',')[0]);
   refreshWeatherFor(loc);
 }
 
@@ -1533,11 +1555,11 @@ function initLocationSearchBox(inputEl, resultsEl, onSelect){
     if(q.length < 2){ resultsEl.hidden = true; resultsEl.innerHTML=''; return; }
     if(!(window.WeatherAPI && window.WeatherAPI.searchLocations)){ resultsEl.hidden = true; return; }
     resultsEl.hidden = false;
-    resultsEl.innerHTML = `<div class="loc-loading">Searching…</div>`;
+    resultsEl.innerHTML = `<div class="loc-loading">${t('empty_search_searching')}</div>`;
     const results = await window.WeatherAPI.searchLocations(q);
     if(inputEl.value.trim() !== q) return; // input changed while this was in flight — drop the stale response
     if(!results.length){
-      resultsEl.innerHTML = `<div class="loc-empty">No matching cities found</div>`;
+      resultsEl.innerHTML = `<div class="loc-empty">${t('empty_search_no_results')}</div>`;
       return;
     }
     resultsEl.innerHTML = results.map(r=>`<button class="loc-item" data-loc="${escapeHtml(r.label)}">${ic('map-pin','icon icon-sm')} ${escapeHtml(r.label)}</button>`).join('');
@@ -1668,9 +1690,9 @@ function initProfile(){
       const activePanel = $$('.panel').find(p=>!p.hidden);
       if(activePanel && restricted.includes(activePanel.id.replace('panel-','')) && $('#nav'+({command:'Command',climate:'Climate'}[activePanel.id.replace('panel-','')])).hidden){
         gotoView('chat');
-        toast('Role updated to '+card.dataset.role+' — that section is no longer available');
+        toast(t('toast_role_updated')+' '+card.dataset.role+' — '+t('toast_role_updated_restricted'));
       } else {
-        toast('Role updated to '+card.dataset.role);
+        toast(t('toast_role_updated')+' '+card.dataset.role);
       }
     });
   });
@@ -1691,8 +1713,8 @@ function initProfile(){
   $('#toggleLargeText').addEventListener('change', e=> document.body.classList.toggle('large-text', e.target.checked));
   $('#toggleContrast').addEventListener('change', e=> document.body.classList.toggle('high-contrast', e.target.checked));
   $('#toggleMotion').addEventListener('change', e=> document.body.classList.toggle('reduced-motion', e.target.checked));
-  $('#toggleLowData').addEventListener('change', e=> toast(e.target.checked?'Low-data mode enabled':'Low-data mode disabled'));
-  $('#toggleBattery').addEventListener('change', e=> toast(e.target.checked?'Battery-aware SOS enabled':'Battery-aware SOS disabled — not recommended'));
+  $('#toggleLowData').addEventListener('change', e=> toast(e.target.checked?t('toast_low_data_on'):t('toast_low_data_off')));
+  $('#toggleBattery').addEventListener('change', e=> toast(e.target.checked?t('toast_battery_sos_on'):t('toast_battery_sos_off')));
 
   renderSavedLocations();
   $('#btnAddLocation').addEventListener('click', ()=>{
@@ -1706,12 +1728,20 @@ function initProfile(){
   $('#btnLogout').addEventListener('click', doLogout);
 }
 function doLogout(){
-  if(confirm('Log out of WeatherGPT?')){
+  if(confirm(t('confirm_logout'))){
     localStorage.removeItem('weathergpt_state');
     location.reload();
   }
 }
 function renderSavedLocations(){
+  if(!state.savedLocations.length){
+    $('#savedLocationsList').innerHTML = `<div class="empty-state empty-state-sm">
+      <svg class="icon-md empty-state-icon"><use href="#i-map-pin"></use></svg>
+      <p class="empty-state-title">${t('empty_locations_title')}</p>
+      <p class="empty-state-sub">${t('empty_locations_sub')}</p>
+    </div>`;
+    return;
+  }
   $('#savedLocationsList').innerHTML = state.savedLocations.map(loc=>`
     <div class="saved-location-row"><span>${ic('map-pin','icon icon-sm')} ${loc}</span><button data-loc="${loc}" aria-label="Remove">${ic('x','icon icon-sm')}</button></div>`).join('');
   $$('#savedLocationsList button').forEach(b=>{

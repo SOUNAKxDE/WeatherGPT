@@ -4,8 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>WeatherGPT — AI Weather Intelligence & Disaster Response</title>
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b0f14">
 <meta name="description" content="Conversational weather intelligence, alerts, and emergency SOS tools that keep working with a weak connection.">
@@ -338,22 +341,22 @@
       <div class="pillar-card">
         <div class="icon-tile lg"><svg class="icon-lg"><use href="#i-satellite"></use></svg></div>
         <h3 data-i18n="pillar_weather_title">Weather Intelligence</h3>
-        <p>Real-time observations, forecasts, radar, satellite and environmental conditions — accessible by conversation.</p>
+        <p data-i18n="pillar_weather_desc">Real-time observations, forecasts, radar, satellite and environmental conditions — accessible by conversation.</p>
       </div>
       <div class="pillar-card">
         <div class="icon-tile lg"><svg class="icon-lg"><use href="#i-trending-up"></use></svg></div>
         <h3 data-i18n="pillar_predictive_title">Predictive Intelligence</h3>
-        <p>NWP fusion, nowcasting, thunderstorm and lightning tracking, heavy-rainfall and inundation probability.</p>
+        <p data-i18n="pillar_predictive_desc">NWP fusion, nowcasting, thunderstorm and lightning tracking, heavy-rainfall and inundation probability.</p>
       </div>
       <div class="pillar-card">
         <div class="icon-tile lg"><svg class="icon-lg"><use href="#i-compass"></use></svg></div>
         <h3 data-i18n="pillar_impact_title">Impact Intelligence</h3>
-        <p>Exposure, infrastructure effects, cascading hazard chains, route, shelter and resource implications.</p>
+        <p data-i18n="pillar_impact_desc">Exposure, infrastructure effects, cascading hazard chains, route, shelter and resource implications.</p>
       </div>
       <div class="pillar-card">
         <div class="icon-tile lg warn"><svg class="icon-lg"><use href="#i-alert-triangle"></use></svg></div>
         <h3 data-i18n="pillar_response_title">Response Intelligence</h3>
-        <p>Alerts, command dashboards, mesh-resilient SOS, incident prioritization and rescue routing.</p>
+        <p data-i18n="pillar_response_desc">Alerts, command dashboards, mesh-resilient SOS, incident prioritization and rescue routing.</p>
       </div>
     </div>
   </section>
@@ -361,12 +364,12 @@
   <section class="section" id="features">
     <h2 class="section-title" data-i18n="features_title">One assistant, every kind of weather question</h2>
     <div class="feature-grid">
-      <div class="feature-card"><h4>Conversational core</h4><p>Ask naturally, in text or voice, in English or regional languages. Follow-up questions carry context.</p></div>
-      <div class="feature-card"><h4>Nowcasting</h4><p>15/30/60/120-minute thunderstorm, lightning and rainfall projections with confidence bands.</p></div>
-      <div class="feature-card"><h4>Flood & inundation</h4><p>Rainfall + terrain + drainage + river level fusion to estimate extent, depth and time-to-impact.</p></div>
-      <div class="feature-card"><h4>Cascading risk</h4><p>Cyclone → rainfall → flood → road blockage → power/network loss, modeled as a live graph.</p></div>
-      <div class="feature-card"><h4>Mesh SOS</h4><p>Battery-aware emergency signalling that relays through nearby devices when networks fail.</p></div>
-      <div class="feature-card"><h4>Command centre</h4><p>Hazard, impact, incident and resource views for authorized disaster-management officers.</p></div>
+      <div class="feature-card"><h4 data-i18n="feature_conversational_title">Conversational core</h4><p data-i18n="feature_conversational_desc">Ask naturally, in text or voice, in English or regional languages. Follow-up questions carry context.</p></div>
+      <div class="feature-card"><h4 data-i18n="feature_nowcasting_title">Nowcasting</h4><p data-i18n="feature_nowcasting_desc">15/30/60/120-minute thunderstorm, lightning and rainfall projections with confidence bands.</p></div>
+      <div class="feature-card"><h4 data-i18n="feature_flood_title">Flood & inundation</h4><p data-i18n="feature_flood_desc">Rainfall + terrain + drainage + river level fusion to estimate extent, depth and time-to-impact.</p></div>
+      <div class="feature-card"><h4 data-i18n="feature_cascading_title">Cascading risk</h4><p data-i18n="feature_cascading_desc">Cyclone → rainfall → flood → road blockage → power/network loss, modeled as a live graph.</p></div>
+      <div class="feature-card"><h4 data-i18n="feature_mesh_title">Mesh SOS</h4><p data-i18n="feature_mesh_desc">Battery-aware emergency signalling that relays through nearby devices when networks fail.</p></div>
+      <div class="feature-card"><h4 data-i18n="feature_command_title">Command centre</h4><p data-i18n="feature_command_desc">Hazard, impact, incident and resource views for authorized disaster-management officers.</p></div>
     </div>
   </section>
 
@@ -412,10 +415,10 @@
         <h3 data-i18n="auth_welcome_title">Log in or sign up</h3>
         <p class="auth-hint" data-i18n="auth_welcome_sub">We'll send a one-time code to verify it's you — no password to remember.</p>
 
-        <span class="field-label">Continue as</span>
+        <span class="field-label" data-i18n="auth_continue_as">Continue as</span>
         <div class="segmented account-type-switch" id="accountTypeSwitch">
-          <button class="seg-btn active" data-account="citizen" type="button"><svg class="icon icon-sm"><use href="#i-users"></use></svg> Citizen</button>
-          <button class="seg-btn" data-account="official" type="button"><svg class="icon icon-sm"><use href="#i-landmark"></use></svg> Government Official</button>
+          <button class="seg-btn active" data-account="citizen" type="button"><svg class="icon icon-sm"><use href="#i-users"></use></svg> <span data-i18n="role_citizen">Citizen</span></button>
+          <button class="seg-btn" data-account="official" type="button"><svg class="icon icon-sm"><use href="#i-landmark"></use></svg> <span data-i18n="role_official">Government Official</span></button>
         </div>
 
                 <div id="citizenAuthFields">
@@ -425,7 +428,7 @@
           </div>
 
           <label class="field" id="phoneField">
-            <span>Mobile number</span>
+            <span data-i18n="field_mobile_number">Mobile number</span>
             <div class="input-with-prefix">
               <span class="prefix">+91</span>
               <input type="tel" id="inputPhone" inputmode="numeric" maxlength="10" placeholder="98765 43210" autocomplete="tel">
@@ -433,7 +436,7 @@
           </label>
 
           <label class="field" id="emailField" hidden>
-            <span>Email address</span>
+            <span data-i18n="field_email_address">Email address</span>
             <input type="email" id="inputEmail" placeholder="you@example.com" autocomplete="email">
           </label>
 
@@ -441,27 +444,27 @@
 
           <button class="btn btn-primary btn-block" id="btnSendOtp" data-i18n="btn_send_otp">Send OTP</button>
 
-          <div class="auth-divider"><span>or continue with</span></div>
+          <div class="auth-divider"><span data-i18n="auth_or_continue">or continue with</span></div>
           <div class="social-row">
-            <button class="btn btn-social">Google</button>
-            <button class="btn btn-social">Apple</button>
+            <button class="btn btn-social" data-i18n="btn_social_google">Google</button>
+            <button class="btn btn-social" data-i18n="btn_social_apple">Apple</button>
           </div>
-          <p class="auth-legal">By continuing you agree to WeatherGPT's Terms and acknowledge the Privacy Notice, including consent settings for SOS location sharing.</p>
+          <p class="auth-legal" data-i18n="auth_legal_citizen">By continuing you agree to WeatherGPT's Terms and acknowledge the Privacy Notice, including consent settings for SOS location sharing.</p>
         </div>
 
                 <div id="officialAuthFields" hidden>
           <label class="field">
-            <span>Government Employee ID</span>
+            <span data-i18n="field_employee_id">Government Employee ID</span>
             <input type="text" id="inputEmployeeId" placeholder="e.g. WB-DM-04821" autocomplete="off">
           </label>
 
           <label class="field">
-            <span>Official email address</span>
+            <span data-i18n="field_official_email">Official email address</span>
             <input type="email" id="inputOfficialEmail" placeholder="name@nic.in" autocomplete="email">
           </label>
 
           <label class="field">
-            <span>Department</span>
+            <span data-i18n="field_department">Department</span>
             <select id="inputDepartment">
               <option value="Disaster Management">Disaster Management</option>
               <option value="Meteorological Department">Meteorological Department</option>
@@ -476,16 +479,16 @@
 
           <p class="field-error" id="officialIdentifierError" hidden></p>
 
-          <button class="btn btn-primary btn-block" id="btnSendOtpOfficial">Send verification code</button>
+          <button class="btn btn-primary btn-block" id="btnSendOtpOfficial" data-i18n="btn_send_verification">Send verification code</button>
 
-          <p class="auth-legal">Access is limited to verified government and disaster-management accounts. Sign-in attempts are logged, and the Command Centre is only enabled after verification.</p>
+          <p class="auth-legal" data-i18n="auth_legal_official">Access is limited to verified government and disaster-management accounts. Sign-in attempts are logged, and the Command Centre is only enabled after verification.</p>
         </div>
       </div>
 
             <div class="auth-step" id="step-otp" hidden>
         <button class="auth-back" id="backToIdentifier" aria-label="Back">←</button>
         <h3 data-i18n="otp_title" id="otpTitle">Enter the code</h3>
-        <p class="auth-hint"><span id="otpHintPrefix">We sent a 6-digit code to</span> <strong id="otpDestination">+91 98765 43210</strong>. <button class="link-btn" id="btnEditDestination">Edit</button></p>
+        <p class="auth-hint"><span id="otpHintPrefix">We sent a 6-digit code to</span> <strong id="otpDestination">+91 98765 43210</strong>. <button class="link-btn" id="btnEditDestination" data-i18n="field_edit">Edit</button></p>
 
         <div class="otp-row" id="otpRow">
           <input class="otp-box" maxlength="1" inputmode="numeric" autocomplete="one-time-code" data-i="0">
@@ -495,11 +498,11 @@
           <input class="otp-box" maxlength="1" inputmode="numeric" data-i="4">
           <input class="otp-box" maxlength="1" inputmode="numeric" data-i="5">
         </div>
-        <p class="field-error" id="otpError" hidden>That code didn't match. Try again or resend.</p>
-        <p class="otp-demo-hint">Prototype mode — enter any 6 digits to continue.</p>
+        <p class="field-error" id="otpError" hidden data-i18n="otp_no_match">That code didn't match. Try again or resend.</p>
+        <p class="otp-demo-hint" data-i18n="otp_demo_hint">Prototype mode — enter any 6 digits to continue.</p>
 
         <button class="btn btn-primary btn-block" id="btnVerifyOtp" data-i18n="btn_verify_otp">Verify & continue</button>
-        <p class="resend-row">Didn't get it? <button class="link-btn" id="btnResend" disabled>Resend in <span id="resendTimer">30</span>s</button></p>
+        <p class="resend-row"><span data-i18n="otp_didnt_get">Didn't get it?</span> <button class="link-btn" id="btnResend" disabled><span data-i18n="otp_resend_in">Resend in</span> <span id="resendTimer">30</span>s</button></p>
       </div>
 
             <div class="auth-step" id="step-profile" hidden>
@@ -512,7 +515,7 @@
         </label>
 
         <label class="field">
-          <span>State / Union Territory</span>
+          <span data-i18n="field_state_ut">State / Union Territory</span>
           <select id="inputState">
             <optgroup label="States">
               <option value="Andhra Pradesh">Andhra Pradesh</option>
@@ -558,7 +561,7 @@
         </label>
 
         <label class="field">
-          <span>City / Town</span>
+          <span data-i18n="field_city_town">City / Town</span>
           <select id="inputCity"></select>
         </label>
 
@@ -573,7 +576,7 @@
             <button class="role-card" type="button" data-role="fitness_trainer"><svg class="icon"><use href="#i-activity"></use></svg><span data-i18n="role_fitness_trainer">Fitness Trainer</span></button>
             <button class="role-card" type="button" data-role="researcher"><svg class="icon"><use href="#i-flask-conical"></use></svg><span data-i18n="role_researcher">Researcher</span></button>
             <button class="role-card" type="button" data-role="runner"><svg class="icon"><use href="#i-footprints"></use></svg><span data-i18n="role_runner">Runner</span></button>
-            <button class="role-card role-more" type="button" id="roleMoreToggle" aria-expanded="false"><svg class="icon i-chevron"><use href="#i-chevron-right"></use></svg><span>More</span></button>
+            <button class="role-card role-more" type="button" id="roleMoreToggle" aria-expanded="false"><svg class="icon i-chevron"><use href="#i-chevron-right"></use></svg><span id="roleMoreToggleLabel" data-i18n="role_more">More</span></button>
             <button class="role-card role-extra" type="button" data-role="beachgoer" hidden><svg class="icon"><use href="#i-waves"></use></svg><span data-i18n="role_beachgoer">Beachgoer</span></button>
             <button class="role-card role-extra" type="button" data-role="event_planner" hidden><svg class="icon"><use href="#i-party-popper"></use></svg><span data-i18n="role_event_planner">Event Planner</span></button>
             <button class="role-card role-extra" type="button" data-role="responder" hidden><svg class="icon"><use href="#i-siren"></use></svg><span data-i18n="role_responder">Responder</span></button>
@@ -582,14 +585,14 @@
 
                 <div id="officialProfileSection" hidden>
           <label class="field">
-            <span>Designation / Rank</span>
+            <span data-i18n="field_designation">Designation / Rank</span>
             <input type="text" id="inputDesignation" placeholder="e.g. District Disaster Management Officer">
           </label>
           <label class="field">
-            <span>Jurisdiction / Office</span>
+            <span data-i18n="field_jurisdiction">Jurisdiction / Office</span>
             <input type="text" id="inputJurisdiction" placeholder="e.g. Hooghly District Control Room">
           </label>
-          <p class="auth-legal">Department: <strong id="officialDeptDisplay">—</strong> · Command Centre access will be enabled for this account.</p>
+          <p class="auth-legal"><span data-i18n="label_department_colon">Department:</span> <strong id="officialDeptDisplay">—</strong> · <span data-i18n="official_dept_note">Command Centre access will be enabled for this account.</span></p>
         </div>
 
         <button class="btn btn-primary btn-block" id="btnFinishProfile" data-i18n="btn_finish_profile">Enter WeatherGPT</button>
@@ -668,16 +671,16 @@
             <div>
               <div class="hwc-temp" id="hwcTemp">31°</div>
               <div class="hwc-desc" id="hwcDesc">Partly cloudy, humid</div>
-              <div class="hwc-feels">Feels like <span id="hwcFeels">35°</span> · H:<span id="hwcHigh">33°</span> L:<span id="hwcLow">27°</span></div>
+              <div class="hwc-feels"><span data-i18n="home_feels_like">Feels like</span> <span id="hwcFeels">35°</span> · H:<span id="hwcHigh">33°</span> L:<span id="hwcLow">27°</span></div>
             </div>
           </div>
           <div class="hwc-grid">
-            <div><small>Humidity</small><strong id="hwcHumidity">78%</strong></div>
-            <div><small>Wind</small><strong id="hwcWind">14 km/h</strong></div>
-            <div><small>Rain chance</small><strong id="hwcRain">62%</strong></div>
-            <div><small>UV Index</small><strong id="hwcUv">6 · High</strong></div>
-            <div><small>AQI</small><strong id="hwcAqi">96 · Moderate</strong></div>
-            <div><small>Pressure</small><strong id="hwcPressure">1006 hPa</strong></div>
+            <div><small data-i18n="home_humidity">Humidity</small><strong id="hwcHumidity">78%</strong></div>
+            <div><small data-i18n="home_wind">Wind</small><strong id="hwcWind">14 km/h</strong></div>
+            <div><small data-i18n="home_rain_chance">Rain chance</small><strong id="hwcRain">62%</strong></div>
+            <div><small data-i18n="home_uv_index">UV Index</small><strong id="hwcUv">6 · High</strong></div>
+            <div><small data-i18n="home_aqi">AQI</small><strong id="hwcAqi">96 · Moderate</strong></div>
+            <div><small data-i18n="home_pressure">Pressure</small><strong id="hwcPressure">1006 hPa</strong></div>
           </div>
         </div>
 
@@ -693,7 +696,7 @@
 
         <div class="section-row">
           <h3 data-i18n="home_lifestyle_title">For you today</h3>
-          <span class="muted small">Based on your profile</span>
+          <span class="muted small" data-i18n="home_based_on_profile">Based on your profile</span>
         </div>
         <div class="lifestyle-grid" id="lifestyleGrid"></div>
 
@@ -709,12 +712,12 @@
           <div class="chat-messages" id="chatMessages">
             <div class="chat-empty" id="chatEmpty">
               <div class="chat-empty-mark"><img src="logo.png" alt="" class="chat-empty-mark-img"></div>
-              <h2>Ask WeatherGPT anything about the sky, the ground, or what to do next.</h2>
+              <h2 data-i18n="chat_hero_title">Ask WeatherGPT anything about the sky, the ground, or what to do next.</h2>
               <div class="suggestion-grid" id="suggestionGrid">
-                <button class="suggestion-card">Will it rain on my way home at 6?</button>
-                <button class="suggestion-card">Which two hours are safest for a run today?</button>
-                <button class="suggestion-card">Should I irrigate my field tomorrow morning?</button>
-                <button class="suggestion-card">What's the weather risks in the next 3 hours?</button>
+                <button class="suggestion-card" data-i18n="suggestion_umbrella">Will it rain on my way home at 6?</button>
+                <button class="suggestion-card" data-i18n="suggestion_run">Which two hours are safest for a run today?</button>
+                <button class="suggestion-card" data-i18n="suggestion_irrigate">Should I irrigate my field tomorrow morning?</button>
+                <button class="suggestion-card" data-i18n="suggestion_risks">What's the weather risks in the next 3 hours?</button>
                 
               </div>
             </div>
@@ -726,7 +729,7 @@
               <button class="icon-btn" id="btnLangChat" title="Language" aria-label="Change language"><svg class="icon-md"><use href="#i-globe"></use></svg></button>
               <button class="send-btn" id="btnSend" aria-label="Send"><svg class="icon-sm"><use href="#i-send"></use></svg></button>
             </div>
-            <p class="chat-disclaimer">WeatherGPT gives decision support based on available data — always follow official warnings during active emergencies.</p>
+            <p class="chat-disclaimer" data-i18n="chat_disclaimer">WeatherGPT gives decision support based on available data — always follow official warnings during active emergencies.</p>
           </div>
         </div>
       </section>
@@ -754,7 +757,7 @@
           </div>
         </div>
         <div class="map-side-panel" id="mapSidePanel">
-          <h4>Layer detail</h4>
+          <h4 data-i18n="map_layer_detail_title">Layer detail</h4>
           <p id="mapDetailText">Radar shows a moderate-to-heavy rain band moving northeast at ~18 km/h, expected to reach central districts within 40 minutes.</p>
         </div>
       </section>
@@ -786,67 +789,67 @@
 
         <div class="tool-panel" id="tool-travel">
           <div class="tool-form">
-            <label class="field"><span>Destination</span><input type="text" id="travelDest" placeholder="e.g. Mumbai" value="Mumbai"></label>
-            <label class="field"><span>Travel date</span><input type="date" id="travelDate"></label>
-            <button class="btn btn-primary" id="btnCheckTravel">Check destination weather</button>
+            <label class="field"><span data-i18n="field_destination">Destination</span><input type="text" id="travelDest" placeholder="e.g. Mumbai" value="Mumbai"></label>
+            <label class="field"><span data-i18n="field_travel_date">Travel date</span><input type="date" id="travelDate"></label>
+            <button class="btn btn-primary" id="btnCheckTravel" data-i18n="btn_check_travel">Check destination weather</button>
           </div>
           <div class="tool-result" id="travelResult"></div>
         </div>
 
         <div class="tool-panel" id="tool-agri" hidden>
           <div class="tool-form">
-            <label class="field"><span>Crop</span>
+            <label class="field"><span data-i18n="field_crop">Crop</span>
               <select id="agriCrop"><option>Rice (paddy)</option><option>Wheat</option><option>Vegetables</option><option>Sugarcane</option></select>
             </label>
-            <label class="field"><span>Field location</span><input type="text" id="agriLoc" value="Hooghly, West Bengal"></label>
-            <button class="btn btn-primary" id="btnCheckAgri">Get irrigation guidance</button>
+            <label class="field"><span data-i18n="field_field_location">Field location</span><input type="text" id="agriLoc" value="Hooghly, West Bengal"></label>
+            <button class="btn btn-primary" id="btnCheckAgri" data-i18n="btn_check_irrigation">Get irrigation guidance</button>
           </div>
           <div class="tool-result" id="agriResult"></div>
         </div>
 
         <div class="tool-panel" id="tool-fitness" hidden>
           <div class="tool-form">
-            <label class="field"><span>Activity</span>
+            <label class="field"><span data-i18n="field_activity">Activity</span>
               <select id="fitnessActivity"><option>Running</option><option>Cycling</option><option>Outdoor gym</option><option>Walking</option></select>
             </label>
-            <button class="btn btn-primary" id="btnCheckFitness">Find safest window</button>
+            <button class="btn btn-primary" id="btnCheckFitness" data-i18n="btn_find_safe_window">Find safest window</button>
           </div>
           <div class="tool-result" id="fitnessResult"></div>
         </div>
 
         <div class="tool-panel" id="tool-event" hidden>
           <div class="tool-form event-form">
-            <label class="field"><span>Event name</span><input type="text" id="eventName" placeholder="e.g. Priya's Wedding Reception"></label>
-            <label class="field"><span>Event type</span>
+            <label class="field"><span data-i18n="field_event_name">Event name</span><input type="text" id="eventName" placeholder="e.g. Priya's Wedding Reception"></label>
+            <label class="field"><span data-i18n="field_event_type">Event type</span>
               <select id="eventType">
                 <option>Wedding</option><option>Birthday party</option><option>Corporate event</option>
                 <option>Concert / festival</option><option>Sports event</option><option>Religious / cultural</option><option>Other</option>
               </select>
             </label>
-            <label class="field"><span>Venue</span>
+            <label class="field"><span data-i18n="field_venue">Venue</span>
               <select id="eventVenue">
                 <option value="outdoor-open">Outdoor — open air</option>
                 <option value="outdoor-covered">Outdoor — tented / covered</option>
                 <option value="indoor">Indoor</option>
               </select>
             </label>
-            <label class="field"><span>Location</span><input type="text" id="eventLoc" value="Kolkata, West Bengal"></label>
-            <label class="field"><span>Date</span><input type="date" id="eventDate"></label>
-            <label class="field"><span>Start time</span><input type="time" id="eventTime" value="18:00"></label>
-            <label class="field"><span>Duration</span>
+            <label class="field"><span data-i18n="field_location_plain">Location</span><input type="text" id="eventLoc" value="Kolkata, West Bengal"></label>
+            <label class="field"><span data-i18n="field_date">Date</span><input type="date" id="eventDate"></label>
+            <label class="field"><span data-i18n="field_start_time">Start time</span><input type="time" id="eventTime" value="18:00"></label>
+            <label class="field"><span data-i18n="field_duration">Duration</span>
               <select id="eventDuration"><option value="2">1–2 hours</option><option value="4" selected>2–4 hours</option><option value="8">4–8 hours</option><option value="12">Full day</option></select>
             </label>
-            <label class="field"><span>Expected guests</span><input type="number" id="eventGuests" min="1" value="150"></label>
-            <label class="field checkbox-field"><input type="checkbox" id="eventBackup"><span>Backup indoor venue available</span></label>
-            <button class="btn btn-primary" id="btnCheckEvent">Assess event risk</button>
+            <label class="field"><span data-i18n="field_expected_guests">Expected guests</span><input type="number" id="eventGuests" min="1" value="150"></label>
+            <label class="field checkbox-field"><input type="checkbox" id="eventBackup"><span data-i18n="field_backup_venue">Backup indoor venue available</span></label>
+            <button class="btn btn-primary" id="btnCheckEvent" data-i18n="btn_assess_event">Assess event risk</button>
           </div>
           <div class="tool-result" id="eventResult"></div>
         </div>
 
         <div class="tool-panel" id="tool-marine" hidden>
           <div class="tool-form">
-            <label class="field"><span>Coastal location</span><input type="text" id="marineLoc" value="Digha, West Bengal"></label>
-            <button class="btn btn-primary" id="btnCheckMarine">Check sea conditions</button>
+            <label class="field"><span data-i18n="field_coastal_location">Coastal location</span><input type="text" id="marineLoc" value="Digha, West Bengal"></label>
+            <button class="btn btn-primary" id="btnCheckMarine" data-i18n="btn_check_marine">Check sea conditions</button>
           </div>
           <div class="tool-result" id="marineResult"></div>
         </div>
@@ -869,7 +872,7 @@
         </div>
         <div class="climate-stats" id="climateStats"></div>
         <div class="climate-note">
-          <strong>Reproducibility note:</strong> Dataset v2.3 (synthetic demo) · Model run 2026-08-24T06:00Z · Spatial res. 4 km · This is illustrative data for the prototype, not an official climate record.
+          <strong data-i18n="climate_repro_label">Reproducibility note:</strong> <span data-i18n="climate_repro_note">Dataset v2.3 (synthetic demo) · Model run 2026-08-24T06:00Z · Spatial res. 4 km · This is illustrative data for the prototype, not an official climate record.</span>
         </div>
       </section>
 
@@ -881,13 +884,13 @@
         <div class="command-stats" id="commandStats"></div>
         <div class="command-grid">
           <div class="command-col">
-            <h4>Incident queue <span class="muted small" id="incidentCount"></span></h4>
+            <h4 data-i18n="command_incident_queue">Incident queue</h4><span class="muted small" id="incidentCount"></span>
             <div id="incidentQueue" class="incident-queue"></div>
           </div>
           <div class="command-col">
-            <h4>Resource status</h4>
+            <h4 data-i18n="command_resource_status">Resource status</h4>
             <div id="resourceStatus" class="resource-status"></div>
-            <h4 class="mt">Underserved areas</h4>
+            <h4 class="mt" data-i18n="command_underserved_areas">Underserved areas</h4>
             <div id="underservedList" class="underserved-list"></div>
           </div>
         </div>
@@ -898,35 +901,35 @@
           <div class="sos-main" id="sosMain">
             <p class="sos-eyebrow" data-i18n="sos_title">EMERGENCY SOS</p>
             <h1 data-i18n="sos_sub">Tap for help. Even offline, we'll try to reach someone.</h1>
-            <p class="muted">Tap the button multiple times to signal urgency. WeatherGPT combines your taps with location and hazard context to prioritize your case.</p>
+            <p class="muted" data-i18n="sos_hint">Tap the button multiple times to signal urgency. WeatherGPT combines your taps with location and hazard context to prioritize your case.</p>
 
             <button class="sos-button" id="sosButton">
               <span id="sosButtonLabel" data-i18n="sos_button_label">SOS</span>
               <span class="sos-ring r1"></span>
               <span class="sos-ring r2"></span>
             </button>
-            <div class="sos-taps">Taps: <strong id="sosTapCount">0</strong> <span id="sosUrgencyLabel" class="urgency-tag">—</span></div>
+            <div class="sos-taps"><span data-i18n="sos_taps_label">Taps:</span> <strong id="sosTapCount">0</strong> <span id="sosUrgencyLabel" class="urgency-tag">—</span></div>
 
             <div class="sos-cancel-row" id="sosCancelRow" hidden>
-              <p>Sending in <strong id="sosCountdown">5</strong>s…</p>
+              <p><span data-i18n="sos_sending_in">Sending in</span> <strong id="sosCountdown">5</strong>s…</p>
               <button class="btn btn-outline" id="btnCancelSos" data-i18n="sos_cancel">Cancel</button>
             </div>
           </div>
 
           <div class="sos-status" id="sosStatus" hidden>
-            <h3>Incident status</h3>
+            <h3 data-i18n="sos_incident_status_title">Incident status</h3>
             <ol class="sos-lifecycle" id="sosLifecycle"></ol>
 
             <div class="sos-context">
-              <h4>Transmission context</h4>
+              <h4 data-i18n="sos_transmission_context">Transmission context</h4>
               <div class="context-grid">
-                <div><small>Battery band</small><strong id="ctxBattery">High (82%)</strong></div>
-                <div><small>Connectivity</small><strong id="ctxConn">Direct (weak)</strong></div>
-                <div><small>Mesh hops</small><strong id="ctxHops">2 nearby devices</strong></div>
-                <div><small>Location</small><strong id="ctxLoc">Kolkata · approx.</strong></div>
+                <div><small data-i18n="label_battery_band">Battery band</small><strong id="ctxBattery">High (82%)</strong></div>
+                <div><small data-i18n="label_connectivity">Connectivity</small><strong id="ctxConn">Direct (weak)</strong></div>
+                <div><small data-i18n="label_mesh_hops">Mesh hops</small><strong id="ctxHops">2 nearby devices</strong></div>
+                <div><small data-i18n="field_location_plain">Location</small><strong id="ctxLoc">Kolkata · approx.</strong></div>
               </div>
             </div>
-            <button class="btn btn-outline btn-block" id="btnResolveSos">Mark as resolved / false alarm</button>
+            <button class="btn btn-outline btn-block" id="btnResolveSos" data-i18n="btn_mark_resolved">Mark as resolved / false alarm</button>
           </div>
         </div>
       </section>
@@ -936,7 +939,7 @@
 
         <div class="profile-grid">
           <div class="settings-card">
-            <h4>About you</h4>
+            <h4 data-i18n="profile_about_you">About you</h4>
             <label class="field"><span data-i18n="label_full_name">Name</span><input type="text" id="settingName"></label>
             <label class="field"><span data-i18n="label_location">Primary location</span>
               <div class="location-search-box">

@@ -366,6 +366,11 @@ body.reduced-motion .radar-blip{ animation:none; opacity:.7; }
 .side-section-label{ font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); padding:.4rem .7rem; }
 .history-item{ display:block; width:100%; text-align:left; background:transparent; border:none; color:var(--text-dim); padding:.5rem .7rem; border-radius:8px; font-size:.83rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .history-item:hover{ background:var(--bg-2); color:var(--text); }
+.empty-state{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:1.4rem .8rem; gap:.35rem; color:var(--text-faint); }
+.empty-state-sm{ padding:1rem .6rem; }
+.empty-state-icon{ opacity:.45; margin-bottom:.2rem; }
+.empty-state-title{ font-size:.85rem; font-weight:600; color:var(--text-dim); margin:0; }
+.empty-state-sub{ font-size:.76rem; color:var(--text-faint); margin:0; line-height:1.4; }
 
 .profile-link{ display:flex; align-items:center; gap:.7rem; background:var(--bg-2); border:1px solid var(--border-soft); border-radius:var(--radius); padding:.6rem .7rem; margin-top:auto; }
 .avatar{ width:32px; height:32px; border-radius:50%; background:var(--accent); color:#04141c; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
