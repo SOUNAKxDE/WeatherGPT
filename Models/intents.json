@@ -1,0 +1,169 @@
+{
+  "intents": [
+    {
+      "tag": "current_weather",
+      "patterns": [
+        "What's the weather like right now?",
+        "Is it raining outside?",
+        "Current temperature in my area",
+        "How hot is it today?",
+        "What's the humidity right now?",
+        "Is it windy outside currently?",
+        "Tell me today's weather",
+        "What's the weather in Kolkata right now?"
+      ],
+      "responses": ["Here's the current weather for your location."],
+      "context_set": ""
+    },
+    {
+      "tag": "forecast_query",
+      "patterns": [
+        "Will it rain tomorrow?",
+        "What's the weather like this weekend?",
+        "Give me the 5 day forecast",
+        "Weather forecast for next week",
+        "Is it going to be sunny on Friday?",
+        "What will the temperature be tonight?",
+        "Hourly forecast for today",
+        "Extended forecast for my city"
+      ],
+      "responses": ["Here's the forecast you asked for."],
+      "context_set": ""
+    },
+    {
+      "tag": "severe_weather_alert",
+      "patterns": [
+        "Is there a storm coming?",
+        "Any lightning warnings nearby?",
+        "Is a cyclone approaching my area?",
+        "Are there severe weather alerts today?",
+        "Is it safe to go outside right now?",
+        "Thunderstorm warning for my location",
+        "Any weather warnings I should know about?"
+      ],
+      "responses": ["Checking for active severe weather alerts in your area."],
+      "context_set": ""
+    },
+    {
+      "tag": "flood_risk_query",
+      "patterns": [
+        "Will my area flood?",
+        "Is there a flood risk tonight?",
+        "Which roads are likely to flood?",
+        "Is my neighbourhood prone to flooding?",
+        "How high could the water rise here?",
+        "Is it safe to drive through my area right now?",
+        "Flood warning for my locality"
+      ],
+      "responses": ["Here's the flood risk estimate for your area."],
+      "context_set": ""
+    },
+    {
+      "tag": "travel_commute_advice",
+      "patterns": [
+        "Will my commute be affected by rain?",
+        "Should I carry an umbrella today?",
+        "Is it safe to travel to Delhi tomorrow?",
+        "What should I pack for my trip to Mumbai?",
+        "Weather along my route to college",
+        "Is the highway safe to drive on right now?",
+        "Should I postpone my trip because of weather?"
+      ],
+      "responses": ["Here's weather-aware advice for your travel plans."],
+      "context_set": ""
+    },
+    {
+      "tag": "outdoor_activity_advice",
+      "patterns": [
+        "Is it a good time to go running?",
+        "Should I irrigate my field today?",
+        "Is it safe to go fishing today?",
+        "Best time for outdoor exercise today",
+        "Can I plan an outdoor event this weekend?",
+        "Is it too hot to work outside right now?",
+        "Good conditions for a beach day?"
+      ],
+      "responses": ["Here's a recommendation based on current outdoor conditions."],
+      "context_set": ""
+    },
+    {
+      "tag": "health_environment_query",
+      "patterns": [
+        "What's the air quality today?",
+        "Is the UV index high right now?",
+        "Is it a good day for someone with allergies?",
+        "How's the pollen count today?",
+        "Is the heat dangerous today?",
+        "AQI in my city right now",
+        "Should I avoid going out because of pollution?"
+      ],
+      "responses": ["Here's the current health and environment reading for your area."],
+      "context_set": ""
+    },
+    {
+      "tag": "historical_climate_query",
+      "patterns": [
+        "What was the rainfall trend last year?",
+        "Show me historical temperature data for my city",
+        "How has rainfall changed over the past decade?",
+        "Compare this month's weather to last year",
+        "What's the climate trend for this region?",
+        "How many heatwaves happened last summer?"
+      ],
+      "responses": ["Here's the historical climate data you requested."],
+      "context_set": ""
+    },
+    {
+      "tag": "sos_emergency",
+      "patterns": [
+        "Help I'm trapped",
+        "Water is rising fast near me",
+        "I need emergency help right now",
+        "SOS my house is flooding",
+        "I'm stuck and can't move",
+        "Send help I'm in danger",
+        "Emergency, I need rescue"
+      ],
+      "responses": ["Emergency detected. Prioritizing your request and alerting response teams."],
+      "context_set": ""
+    },
+    {
+      "tag": "incident_report",
+      "patterns": [
+        "I want to report a flooded road",
+        "There's a fallen tree blocking the street",
+        "Reporting damage to a building near me",
+        "This road is blocked, reporting it",
+        "I want to submit a photo of the flooding here",
+        "Reporting a power outage in my area"
+      ],
+      "responses": ["Thanks, your incident report has been logged for the response team."],
+      "context_set": ""
+    },
+    {
+      "tag": "greeting",
+      "patterns": ["Hi", "Hello", "Hey", "Good morning", "Is anyone there?", "What's up"],
+      "responses": ["Hello! How can I help you with the weather today?"],
+      "context_set": ""
+    },
+    {
+      "tag": "goodbye",
+      "patterns": ["Bye", "See you later", "Goodbye", "I'm leaving now", "Talk to you later"],
+      "responses": ["Goodbye! Stay safe."],
+      "context_set": ""
+    },
+    {
+      "tag": "general_chitchat_or_unclear",
+      "patterns": [
+        "What can you do?",
+        "Who made you?",
+        "Tell me a joke",
+        "I don't understand",
+        "That's not what I asked",
+        "Can you help me with something else?"
+      ],
+      "responses": ["I'm best at weather, hazard, and safety questions — could you rephrase what you need?"],
+      "context_set": ""
+    }
+  ]
+}
