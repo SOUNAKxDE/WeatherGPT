@@ -758,31 +758,183 @@ function buildMsgNode(m){
   const avatar = el('div','msg-avatar', m.role==='user' ? (state.user.name||'G').charAt(0).toUpperCase() : ic('cloud-sun'));
   const bubble = el('div','msg-bubble');
   bubble.innerHTML = m.html || `<p>${escapeHtml(m.text)}</p>`;
+  if(m.translatedText){
+    bubble.innerHTML += `<span class="msg-translation">${escapeHtml(m.translatedText)}</span>`;
+  }
   row.appendChild(avatar); row.appendChild(bubble);
   return row;
 }
 function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+/**
+ * Sends whatever is currently in the chat box. Shared by the send button,
+ * the Enter key, and the voice flow (which auto-sends once it decides the
+ * person has stopped talking).
+ */
+function sendFromBox(){
+  const ta = $('#chatInput');
+  if(!ta.value.trim()) return;
+  // Sending — whether by tapping Send, hitting Enter, or the voice flow's
+  // own silence timeout — should always stop an in-progress recording. This
+  // matters when the person sends by hand while the mic is still listening:
+  // without this, recognition would keep running in the background after
+  // the message has already gone out.
+  if(voiceState.active && voiceState.recognition){
+    try{ voiceState.recognition.stop(); }catch(e){}
+  }
+  sendMessage(ta.value, { sourceLang: ta.dataset.voiceLang || null });
+  delete ta.dataset.voiceLang;
+}
+
 function initChat(){
   $$('#suggestionGrid .suggestion-card').forEach(card=>{
     card.addEventListener('click', ()=> sendMessage(card.textContent));
   });
-  $('#btnSend').addEventListener('click', ()=> sendMessage($('#chatInput').value));
+  $('#btnSend').addEventListener('click', sendFromBox);
   const ta = $('#chatInput');
   ta.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(ta.value); }
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendFromBox(); }
   });
   ta.addEventListener('input', ()=>{
     ta.style.height='auto';
     ta.style.overflowY = ta.scrollHeight>140 ? 'auto' : 'hidden';
     ta.style.height=Math.min(ta.scrollHeight,140)+'px';
+    // If the person edits the box by hand, it's no longer "the transcript we
+    // just heard" — drop the voice-language tag so we don't try to translate
+    // hand-typed text using a stale source language.
+    if(!voiceState.active) delete ta.dataset.voiceLang;
     const emptyEl = $('#chatEmpty');
     if(emptyEl) emptyEl.hidden = ta.value.trim().length>0;
     const disclaimerEl = $('.chat-disclaimer');
     if(disclaimerEl) disclaimerEl.style.display = ta.value.trim().length>0 ? 'none' : '';
   });
-  $('#btnVoice').addEventListener('click', ()=> toast(t('toast_voice_unavailable')));
+  $('#btnVoice').addEventListener('click', startVoiceInput);
   $('#btnLangChat').addEventListener('click', ()=> openLanguageGate('app'));
+}
+
+/**
+ * Maps our in-app language codes to BCP-47 locale tags the browser's
+ * SpeechRecognition engine understands. Extend this alongside I18N_DATA.langs
+ * whenever a new language is added to the language picker.
+ */
+const VOICE_LANG_MAP = {
+  en:'en-IN', hi:'hi-IN', bn:'bn-IN', ta:'ta-IN', te:'te-IN', mr:'mr-IN',
+  gu:'gu-IN', kn:'kn-IN', ml:'ml-IN', pa:'pa-IN', ur:'ur-IN', or:'or-IN', as:'as-IN'
+};
+function speechLangFor(lang){ return VOICE_LANG_MAP[lang] || 'en-IN'; }
+
+// Single source of truth for "are we currently listening". The mic button's
+// visual state and the "Listening…" pill both read from this object, so they
+// can never show out of sync with what SpeechRecognition is actually doing.
+const voiceState = { recognition:null, active:false };
+
+function setListeningUI(active, statusText){
+  const btn = $('#btnVoice');
+  const indicator = $('#voiceIndicator');
+  const indicatorText = $('#voiceIndicatorText');
+  if(btn){ btn.classList.toggle('is-listening', active); btn.setAttribute('aria-pressed', active ? 'true' : 'false'); }
+  if(indicator) indicator.hidden = !active;
+  if(indicatorText) indicatorText.textContent = statusText || 'Listening… speak now';
+}
+
+function endVoiceInput(){
+  voiceState.active = false;
+  voiceState.recognition = null;
+  setListeningUI(false);
+}
+
+// How long we'll wait after the last bit of detected speech before we
+// decide the person is done talking, auto-stop the mic, and send.
+const VOICE_SILENCE_MS = 10000;
+
+function startVoiceInput(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ toast(t('toast_voice_unavailable')); return; }
+
+  // Tapping the mic again while it's already listening cancels the recording
+  // instead of starting a second one.
+  if(voiceState.active){ if(voiceState.recognition) voiceState.recognition.stop(); return; }
+
+  const ta = $('#chatInput');
+  const baseValue = ta.value.trim();
+  const recog = new SR();
+  recog.lang = speechLangFor(state.lang);
+  recog.interimResults = true;
+  // Continuous + our own silence timer (below) gives us exact control over
+  // the 10s cutoff, instead of relying on each browser's own, inconsistent
+  // endpointing to decide when a pause means "done talking".
+  recog.continuous = true;
+  recog.maxAlternatives = 1;
+
+  let finalTranscript = '';
+  let silenceTimer = null;
+  const armSilenceTimer = ()=>{
+    clearTimeout(silenceTimer);
+    silenceTimer = setTimeout(()=>{ try{ recog.stop(); }catch(e){} }, VOICE_SILENCE_MS);
+  };
+
+  voiceState.recognition = recog;
+  voiceState.active = true;
+  setListeningUI(true);
+  armSilenceTimer(); // also covers "never said anything at all"
+
+  recog.onresult = (e)=>{
+    armSilenceTimer();
+    let interim = '';
+    for(let i=e.resultIndex; i<e.results.length; i++){
+      const res = e.results[i];
+      if(res.isFinal) finalTranscript += res[0].transcript;
+      else interim += res[0].transcript;
+    }
+    const heard = (finalTranscript + interim).trim();
+    ta.value = [baseValue, heard].filter(Boolean).join(' ');
+    ta.dispatchEvent(new Event('input'));
+    setListeningUI(true, heard || undefined);
+  };
+  recog.onerror = (e)=>{
+    clearTimeout(silenceTimer);
+    endVoiceInput();
+    if(e.error === 'no-speech') toast('Didn\u2019t catch that — try again');
+    else if(e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Microphone access is blocked in your browser settings');
+    else toast(t('toast_voice_unavailable'));
+  };
+  recog.onend = ()=>{
+    clearTimeout(silenceTimer);
+    const heardSomething = finalTranscript.trim().length>0;
+    // Tag the box with which language we just heard, so sendMessage() knows
+    // whether to request an English translation before rendering the bubble.
+    if(heardSomething) ta.dataset.voiceLang = state.lang;
+    endVoiceInput();
+    // 10s of silence (or the person tapping the mic to stop) means "done" —
+    // send it straight away rather than waiting for a manual tap on send.
+    if(heardSomething) sendFromBox();
+  };
+
+  try{ recog.start(); }
+  catch(err){ clearTimeout(silenceTimer); endVoiceInput(); toast(t('toast_voice_unavailable')); }
+}
+
+/**
+ * Sends recognized non-English speech to a backend translation endpoint.
+ * There is no backend wired into this front-end prototype, so this call is
+ * *expected* to fail right now — it's written so that standing up the real
+ * endpoint described in the project notes is a drop-in fix, nothing here
+ * needs to change. On failure we simply skip showing a translation line.
+ */
+async function translateToEnglish(text, sourceLang){
+  if(!text || !sourceLang || sourceLang === 'en') return null;
+  try{
+    const res = await fetch('/api/translate', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ text, source: sourceLang, target: 'en' })
+    });
+    if(!res.ok) throw new Error('translate endpoint unavailable');
+    const data = await res.json();
+    return (data && data.translatedText) ? data.translatedText : null;
+  }catch(e){
+    return null;
+  }
 }
 
 /**
@@ -849,18 +1001,29 @@ function thinkingStepsFor(text, cityShort){
   ];
 }
 
-function sendMessage(text){
+async function sendMessage(text, meta={}){
   text = (text||'').trim();
   if(!text) return;
   const chat = activeChat();
   if(chat.title==='New chat') chat.title = text.slice(0,42);
-  chat.messages.push({role:'user', text});
+  const userMsg = {role:'user', text};
+  chat.messages.push(userMsg);
   $('#chatInput').value=''; $('#chatInput').style.height='auto'; $('#chatInput').style.overflowY='hidden';
   const disclaimerEl = $('.chat-disclaimer');
   if(disclaimerEl) disclaimerEl.style.display = '';
   renderMessages();
   renderChatHistory();
   saveState();
+
+  // If this text came from the mic in a non-English language, fetch an
+  // English translation and slot it under the user's bubble once it's back.
+  if(meta.sourceLang && meta.sourceLang !== 'en'){
+    translateToEnglish(text, meta.sourceLang).then(translated=>{
+      if(!translated || translated.trim().toLowerCase() === text.trim().toLowerCase()) return;
+      userMsg.translatedText = translated;
+      renderMessages();
+    });
+  }
 
   const wrap = $('#chatMessages');
   const cityShort = state.user.location.split(',')[0];

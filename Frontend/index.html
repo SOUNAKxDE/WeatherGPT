@@ -723,8 +723,11 @@
             </div>
           </div>
           <div class="chat-input-wrap">
+            <p class="voice-indicator" id="voiceIndicator" hidden>
+              <span class="voice-dot"></span><span id="voiceIndicatorText">Listening… speak now</span>
+            </p>
             <div class="chat-input-bar">
-              <button class="icon-btn" id="btnVoice" title="Voice input" aria-label="Voice input"><svg class="icon-md"><use href="#i-mic"></use></svg></button>
+              <button class="icon-btn" id="btnVoice" title="Voice input" aria-label="Voice input" aria-pressed="false"><svg class="icon-md"><use href="#i-mic"></use></svg></button>
               <textarea id="chatInput" placeholder="Type here" rows="1"></textarea>
               <button class="icon-btn" id="btnLangChat" title="Language" aria-label="Change language"><svg class="icon-md"><use href="#i-globe"></use></svg></button>
               <button class="send-btn" id="btnSend" aria-label="Send"><svg class="icon-sm"><use href="#i-send"></use></svg></button>

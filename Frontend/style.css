@@ -511,6 +511,21 @@ body.reduced-motion .think-spinner::after, body.reduced-motion .think-bar{ anima
 .chat-input-wrap{ padding:1rem 1.4rem 1.4rem; }
 .chat-input-bar{ display:flex; align-items:flex-end; gap:.5rem; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-lg); padding:.5rem .6rem; }
 .chat-input-bar textarea{ flex:1; resize:none; background:transparent; border:none; outline:none; color:var(--text); font-size:.9rem; padding:.5rem .3rem; max-height:140px; overflow-y:hidden; }
+
+/* Voice input — mic button only turns "on" while SpeechRecognition is
+   actually capturing audio; both are toggled together from the same JS
+   state so they can't drift out of sync (see startVoiceInput/endVoiceInput). */
+.icon-btn.is-listening{ background:var(--danger-dim); color:var(--danger); box-shadow:0 0 0 0 rgba(201,85,106,.35); animation:mic-pulse 1.4s ease-in-out infinite; }
+@keyframes mic-pulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(201,85,106,.35); } 50%{ box-shadow:0 0 0 7px rgba(201,85,106,0); } }
+body.reduced-motion .icon-btn.is-listening{ animation:none; }
+
+.voice-indicator{ display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--danger); margin:0 0 .5rem .2rem; }
+.voice-indicator[hidden]{ display:none; }
+.voice-indicator .voice-dot{ width:7px; height:7px; border-radius:50%; background:var(--danger); animation:voice-dot-pulse 1s ease-in-out infinite; }
+@keyframes voice-dot-pulse{ 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.35; transform:scale(.7); } }
+body.reduced-motion .voice-indicator .voice-dot{ animation:none; }
+
+.msg-translation{ display:block; margin-top:.4rem; font-size:.8rem; font-style:italic; color:var(--text-dim); }
 .send-btn{ width:36px; height:36px; border-radius:50%; background:var(--accent); border:none; color:#04141c; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .send-btn .icon{ width:16px; height:16px; }
 .send-btn svg{ transform:rotate(45deg); }
