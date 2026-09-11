@@ -642,6 +642,24 @@ body.reduced-motion .voice-indicator .voice-dot{ animation:none; }
 .underserved-row{ display:flex; align-items:center; justify-content:space-between; gap:.8rem; background:var(--panel); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:.55rem .9rem; font-size:.81rem; color:var(--text-dim); }
 .underserved-row .icon{ color:var(--warn); flex-shrink:0; }
 
+.command-hotspots{ margin-top:1.6rem; border-top:1px solid var(--border-soft); padding-top:1.4rem; }
+.command-hotspots h4{ font-size:.95rem; margin-bottom:.3rem; }
+.command-hotspots .muted.small{ margin-bottom:.9rem; }
+.hotspot-list{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:.7rem; }
+.hotspot-row{ display:flex; align-items:center; gap:.8rem; background:var(--panel); border:1px solid var(--border-soft); border-left:3px solid var(--accent-2); border-radius:10px; padding:.7rem .9rem; }
+.hotspot-row.sev-critical{ border-left-color:var(--danger); }
+.hotspot-row.sev-high{ border-left-color:var(--warn); }
+.hotspot-row .hotspot-icon{ width:34px; height:34px; border-radius:9px; background:var(--bg-2); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--accent); }
+.hotspot-row.sev-critical .hotspot-icon{ color:var(--danger); }
+.hotspot-row.sev-high .hotspot-icon{ color:var(--warn); }
+.hotspot-info{ flex:1; min-width:0; }
+.hotspot-info strong{ display:block; font-size:.85rem; }
+.hotspot-info small{ color:var(--text-faint); font-size:.74rem; }
+.hotspot-count{ font-family:var(--font-mono); font-size:.78rem; font-weight:700; background:var(--bg-2); border:1px solid var(--border); border-radius:999px; padding:.25rem .6rem; white-space:nowrap; flex-shrink:0; }
+.hotspot-row.sev-critical .hotspot-count{ color:var(--danger); border-color:var(--danger); }
+.hotspot-row.sev-high .hotspot-count{ color:var(--warn); border-color:var(--warn); }
+.hotspot-empty{ font-size:.82rem; color:var(--text-faint); }
+
 .panel-sos{ display:flex; align-items:center; justify-content:center; min-height:calc(100vh - 4rem); }
 .sos-shell{ display:grid; grid-template-columns:1fr 1fr; gap:3rem; max-width:1000px; width:100%; align-items:center; }
 .sos-main{ text-align:center; }

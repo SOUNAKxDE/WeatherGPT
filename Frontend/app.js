@@ -1574,12 +1574,47 @@ function initClimate(){
 function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
 
 const INCIDENTS = [
-  {p:'critical', name:'SOS #4821', meta:'Zone 7 · No cellular · mesh relay', action:'Dispatch'},
-  {p:'high', name:'SOS #4819', meta:'Riverside Ward 4 · weak signal', action:'Assign'},
-  {p:'medium', name:'Damage report #211', meta:'Road blockage, MG Road', action:'Review'},
-  {p:'high', name:'SOS #4823', meta:'Coastal sector · battery low', action:'Assign'},
-  {p:'medium', name:'Damage report #212', meta:'Power outage reported, Sector 5', action:'Review'},
+  {p:'critical', name:'SOS #4821', meta:'Zone 7 · No cellular · mesh relay', action:'Dispatch', type:'waterlogging', area:'Zone 7'},
+  {p:'high', name:'SOS #4819', meta:'Riverside Ward 4 · weak signal', action:'Assign', type:'waterlogging', area:'Riverside Ward 4'},
+  {p:'medium', name:'Damage report #211', meta:'Road blockage, MG Road', action:'Review', type:'road_blockage', area:'MG Road'},
+  {p:'high', name:'SOS #4823', meta:'Coastal sector · battery low', action:'Assign', type:'waterlogging', area:'Coastal Sector'},
+  {p:'medium', name:'Damage report #212', meta:'Power outage reported, Sector 5', action:'Review', type:'power_outage', area:'Sector 5'},
+  {p:'high', name:'SOS #4825', meta:'Riverside Ward 4 · rising water', action:'Assign', type:'waterlogging', area:'Riverside Ward 4'},
+  {p:'medium', name:'Damage report #213', meta:'Waterlogging near underpass, Riverside Ward 4', action:'Review', type:'waterlogging', area:'Riverside Ward 4'},
+  {p:'medium', name:'Damage report #214', meta:'Power outage reported, Sector 5', action:'Review', type:'power_outage', area:'Sector 5'},
+  {p:'critical', name:'SOS #4827', meta:'Zone 7 · trapped resident', action:'Dispatch', type:'waterlogging', area:'Zone 7'},
 ];
+
+// Which reports feed the recurring-hotspots view: every incident carries a
+// `type` (the underlying problem — waterlogging, power_outage, ...) and an
+// `area` (the ward/zone/street it's tied to). Grouping by (type + area) and
+// keeping only groups with 2+ reports surfaces the places that keep coming
+// up for the same reason, so an officer can see at a glance where to send
+// crews rather than triaging each SOS/damage report in isolation.
+const HOTSPOT_TYPE_META = {
+  waterlogging: { icon:'waves', labelKey:'hotspot_type_waterlogging' },
+  power_outage: { icon:'zap', labelKey:'hotspot_type_power_outage' },
+  road_blockage: { icon:'route', labelKey:'hotspot_type_road_blockage' },
+  structural_damage: { icon:'building-2', labelKey:'hotspot_type_structural_damage' }
+};
+const HOTSPOT_MIN_COUNT = 2;
+
+function computeHotspots(incidents){
+  const PRIORITY_WEIGHT = {critical:3, high:2, medium:1};
+  const groups = {};
+  incidents.forEach(inc=>{
+    if(!inc.type || !inc.area) return;
+    const key = inc.type + '::' + inc.area;
+    if(!groups[key]) groups[key] = {type:inc.type, area:inc.area, count:0, maxWeight:0, maxP:'medium'};
+    const g = groups[key];
+    g.count++;
+    const w = PRIORITY_WEIGHT[inc.p] || 1;
+    if(w > g.maxWeight){ g.maxWeight = w; g.maxP = inc.p; }
+  });
+  return Object.values(groups)
+    .filter(g=> g.count >= HOTSPOT_MIN_COUNT)
+    .sort((a,b)=> b.count - a.count || b.maxWeight - a.maxWeight);
+}
 const RESOURCES = [
   {name:'Ambulances available', status:'14 / 20', low:false},
   {name:'Boats ready', status:'3 / 6', low:true},
@@ -1604,6 +1639,25 @@ function renderCommand(){
   $('#resourceStatus').innerHTML = RESOURCES.map(r=>`
     <div class="resource-row"><span>${r.name}</span><span class="r-status ${r.low?'low':''}">${r.status}</span></div>`).join('');
   $('#underservedList').innerHTML = UNDERSERVED.map(u=>`<div class="underserved-row"><span>${u}</span>${ic('triangle-alert','icon icon-sm')}</div>`).join('');
+
+  const hotspots = computeHotspots(INCIDENTS);
+  const hotspotEl = $('#hotspotList');
+  if(hotspotEl){
+    if(!hotspots.length){
+      hotspotEl.innerHTML = `<p class="hotspot-empty">${t('command_hotspots_empty')}</p>`;
+    } else {
+      hotspotEl.innerHTML = hotspots.map(h=>{
+        const meta = HOTSPOT_TYPE_META[h.type] || {icon:'triangle-alert', labelKey:h.type};
+        const sevClass = h.maxP === 'critical' ? 'sev-critical' : (h.maxP === 'high' ? 'sev-high' : '');
+        return `
+        <div class="hotspot-row ${sevClass}">
+          <div class="hotspot-icon">${ic(meta.icon,'icon icon-sm')}</div>
+          <div class="hotspot-info"><strong>${h.area}</strong><small>${t(meta.labelKey)}</small></div>
+          <div class="hotspot-count">${h.count} ${t('command_hotspots_reports')}</div>
+        </div>`;
+      }).join('');
+    }
+  }
 
   $$('.incident-action').forEach(btn=> btn.addEventListener('click', ()=> toast(`${btn.previousElementSibling.querySelector('strong').textContent} → action logged`)));
 }
