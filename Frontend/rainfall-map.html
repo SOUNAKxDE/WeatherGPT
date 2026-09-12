@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>Live Rainfall Radar & Map — WeatherGPT India</title>
+  <meta name="description" content="Real-time rainfall radar and intensity map with separate color categorizations for Heavy, Moderate, and Light precipitation across all 36 Indian states and union territories powered by Google Maps.">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#0a0d13">
+
+  <!-- Typography aligned with WeatherGPT index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="rainfall-map.css">
+</head>
+<body>
+
+  <!-- ======================================================================
+       Header Bar (Aligned & Proportional Controls)
+       ====================================================================== -->
+  <header class="rainfall-header">
+    <div class="brand-section">
+      <a href="index.html" class="back-link" title="Return to WeatherGPT dashboard">
+        <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+      <div class="brand">
+        <img src="logo.png" alt="WeatherGPT" class="brand-mark small">
+        <span class="brand-name">WeatherGPT</span>
+        <span class="badge-live">
+          <span class="pulse-dot"></span>
+          INDIA RADAR
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Stats Category Filter Banner (Proportional, Refined Buttons) -->
+    <div class="stats-banner">
+      <button class="stat-pill pill-all active" id="statAll" type="button" title="View all 36 tracked Indian states & union territories">
+        <span>All</span>
+        <span class="count" id="countAll">36</span>
+      </button>
+      <button class="stat-pill pill-heavy" id="statHeavy" type="button" title="Heavy rainfall (> 7.5 mm/h)">
+        <span class="indicator"></span>
+        <span>Heavy</span>
+        <span class="count" id="countHeavy">0</span>
+      </button>
+      <button class="stat-pill pill-moderate" id="statModerate" type="button" title="Moderate rainfall (2.5 - 7.5 mm/h)">
+        <span class="indicator"></span>
+        <span>Moderate</span>
+        <span class="count" id="countModerate">0</span>
+      </button>
+      <button class="stat-pill pill-light" id="statLight" type="button" title="Light rainfall (0.1 - 2.5 mm/h)">
+        <span class="indicator"></span>
+        <span>Light</span>
+        <span class="count" id="countLight">0</span>
+      </button>
+    </div>
+
+    <!-- Actions: Auto-refresh, Manual Refresh & Key Settings -->
+    <div class="header-actions">
+      <div class="refresh-container">
+        <span>Auto-refresh:</span>
+        <span class="timer-text" id="refreshTimer">60s</span>
+      </div>
+      <button class="btn-action" id="btnRefresh" title="Fetch fresh rainfall data right now">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+        </svg>
+        <span>Refresh</span>
+      </button>
+      <button class="btn-action btn-accent" id="btnOpenKeyModal" title="Configure Google Maps API Key or Demo Key">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+        </svg>
+        <span>API Key</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       Main Content: Sidebar + Google Maps Canvas
+       ====================================================================== -->
+  <main class="rainfall-main">
+    
+    <!-- Left Sidebar: Places Feed & Search -->
+    <aside class="rainfall-sidebar" id="rainfallSidebar">
+      <div class="sidebar-search-box">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="stationSearch" class="search-input" placeholder="Search" autocomplete="off">
+        </div>
+
+        <div style="display: flex;">
+          <button class="btn-action btn-locate" id="btnLocateMe" title="Find rainfall metrics for my current GPS location">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>My Current Location</span>
+          </button>
+        </div>
+
+        <!-- Quick Filter Buttons -->
+        <div class="quick-filter-row">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="heavy"><span class="filter-dot dot-heavy"></span>Heavy</button>
+          <button class="filter-btn" data-filter="moderate"><span class="filter-dot dot-moderate"></span>Moderate</button>
+          <button class="filter-btn" data-filter="light"><span class="filter-dot dot-light"></span>Light</button>
+        </div>
+      </div>
+
+      <!-- Places List Container -->
+      <div class="sidebar-list-container" id="placesList">
+        <!-- Rendered dynamically by rainfall-map.js -->
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <span id="placesCount">36 states & territories</span>
+        <span>Updated <strong id="lastUpdatedTime">--:--:--</strong></span>
+      </div>
+    </aside>
+
+    <!-- Map Stage -->
+    <div class="map-viewport">
+      <div id="map"></div>
+
+      <!-- Top Right Floating Controls -->
+      <div class="map-floating-panel">
+        <div class="glass-pill-group">
+          <button class="map-type-btn active" data-type="roadmap">Dark</button>
+          <button class="map-type-btn" data-type="satellite">Satellite</button>
+          <button class="map-type-btn" data-type="terrain">Terrain</button>
+        </div>
+      </div>
+
+      <!-- Floating Zoom & Radar Status Indicator -->
+      <div class="zoom-radar-status" id="zoomRadarStatus">
+        <span class="zoom-status-dot"></span>
+        <span class="zoom-status-text" id="zoomRadarText">Radar Active (Zoom 1–7)</span>
+        <button class="zoom-reset-btn" id="btnResetRadarZoom" title="Return to regional radar zoom level" style="display: none;">Zoom to Radar (z6)</button>
+      </div>
+
+      <!-- Legend Overlay (Bottom Left) -->
+      <div class="map-legend-overlay">
+        <div class="legend-title">Precipitation Intensity</div>
+        <div class="legend-items">
+          <div class="legend-row">
+            <div class="legend-left">
+              <div class="legend-color-box" style="background: #ef4444;"></div>
+              <span>Heavy</span>
+            </div>
+            <span class="legend-range">&gt; 7.5 mm/h</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-left">
+              <div class="legend-color-box" style="background: #f59e0b;"></div>
+              <span>Moderate</span>
+            </div>
+            <span class="legend-range">2.5 – 7.5 mm/h</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-left">
+              <div class="legend-color-box" style="background: #10b981;"></div>
+              <span>Light</span>
+            </div>
+            <span class="legend-range">0.1 – 2.5 mm/h</span>
+          </div>
+          <div class="legend-row">
+            <div class="legend-left">
+              <div class="legend-color-box" style="background: #64748b;"></div>
+              <span>Dry / Trace</span>
+            </div>
+            <span class="legend-range">&lt; 0.1 mm/h</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Floating Doppler Radar Player Bar -->
+      <div class="radar-timeline-player">
+        <button class="radar-btn" id="btnPlayRadar" title="Play / Pause radar animation">▶</button>
+        <div class="radar-slider-wrap">
+          <div class="radar-slider-header">
+            <span>Doppler Radar Live Satellite Overlay (India)</span>
+            <span id="radarTimeLabel">Loading radar...</span>
+          </div>
+          <input type="range" class="radar-slider" id="radarSlider" min="0" max="10" value="0">
+        </div>
+        <label class="radar-toggle-wrap">
+          <input type="checkbox" id="radarToggle" checked>
+          <span>Radar Layer</span>
+        </label>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ======================================================================
+       Google Maps API Key Setup Modal
+       ====================================================================== -->
+  <div class="modal-overlay" id="apiKeyModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Google Maps Platform Key</h3>
+        <button class="modal-close-btn" id="btnCloseKeyModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          This live map uses Google Maps JavaScript API with modern <code>AdvancedMarkerElement</code>.
+        </p>
+
+        <div class="callout-box">
+          <strong>⚡ Zero-Cost Prototyping with Maps Demo Key:</strong><br>
+          Don't have a Google Cloud billing account yet? Generate a free <strong>Maps Demo Key</strong> in seconds with no credit card required:
+          <br><br>
+          <a href="https://mapsplatform.google.com/maps-demo-key?utm_campaign=gmp_git_agentskills_v1" target="_blank" rel="noopener noreferrer">
+            Open Google Maps Demo Key Generator &rarr;
+          </a>
+        </div>
+
+        <label for="apiKeyInput" style="font-weight: 600; font-size: 0.85rem; color: var(--text);">
+          Enter Your Google Maps API Key:
+        </label>
+        <input type="text" id="apiKeyInput" class="modal-input" placeholder="AIzaSy...">
+
+        <p style="font-size: 0.78rem; color: var(--text-dim);">
+          Your key will be securely saved in your browser's local storage and used exclusively to authenticate Google Maps JS API requests.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-action" id="btnUseDemoKey">Get Free Demo Key</button>
+        <button class="btn-action btn-accent" id="btnSaveApiKey">Save & Reload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript Engine -->
+  <script src="rainfall-map.js"></script>
+</body>
+</html>

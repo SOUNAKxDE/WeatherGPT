@@ -631,6 +631,7 @@
         <button class="side-link active" data-view="chat"><svg class="icon"><use href="#i-message-circle"></use></svg><span data-i18n="side_chat">Chat</span></button>
         <button class="side-link" data-view="today"><svg class="icon"><use href="#i-cloud-sun"></use></svg><span data-i18n="side_forecast">Today's Forecast</span></button>
         <button class="side-link" data-view="map"><svg class="icon"><use href="#i-map"></use></svg><span data-i18n="side_map">Map & Hazards</span></button>
+        <a href="rainfall-map.html" class="side-link" style="text-decoration:none;"><svg class="icon"><use href="#i-cloud-rain"></use></svg><span>Live Rainfall Map</span> <span class="badge" style="background:#ef4444;color:#fff;font-size:0.65rem;margin-left:auto;">LIVE</span></a>
         <button class="side-link" data-view="alerts"><svg class="icon"><use href="#i-bell"></use></svg><span data-i18n="side_alerts">Alerts</span> <span class="badge" id="alertBadge">3</span></button>
         <button class="side-link" data-view="plan"><svg class="icon"><use href="#i-compass"></use></svg><span data-i18n="side_plan">Plan</span></button>
         <button class="side-link" data-view="climate" id="navClimate" hidden><svg class="icon"><use href="#i-bar-chart-3"></use></svg><span data-i18n="side_climate">Climate & Research</span></button>
@@ -738,8 +739,12 @@
       </section>
 
             <section class="panel" id="panel-map" hidden>
-        <div class="panel-header">
+        <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
           <div><h1 data-i18n="map_title">Map & Hazard Layers</h1><p class="muted">Radar, satellite, lightning, flood and SOS overlays for your region</p></div>
+          <a href="rainfall-map.html" class="chip-btn" style="text-decoration:none;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;padding:0.45rem 0.9rem;font-weight:600;display:inline-flex;align-items:center;gap:0.4rem;border:none;">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><path d="M8 19v2m8-2v2m-4-1v2"/></svg>
+            <span>Live Rainfall Google Map</span> &rarr;
+          </a>
         </div>
         <div class="map-toolbar" id="mapToolbar">
           <button class="layer-chip active" data-layer="radar"><svg class="icon-sm"><use href="#i-cloud-rain"></use></svg> <span data-i18n="layer_radar">Radar</span></button>

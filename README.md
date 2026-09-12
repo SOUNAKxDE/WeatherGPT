@@ -7,6 +7,7 @@ A conversational, multilingual weather app built as an installable Progressive W
 ## Features
 
 - **Today's Forecast** — current conditions, hourly and 7‑day outlook, humidity, wind, UV, AQI and pressure, powered by live [Open‑Meteo](https://open-meteo.com) data (no API key required).
+- **Live Rainfall Google Map** (`rainfall-map.html`) — real-time Google Maps interface categorizing places into **Heavy** (🔴), **Moderate** (🟡), and **Light** (🟢) rainfall with dynamic pins, precipitation radiuses, Doppler radar overlay, and live auto-updating results.
 - **Map & Hazards** — spatial view of hazards near a location.
 - **Alerts** — active severe‑weather and hazard alerts with a live badge count.
 - **Chat** — a conversational assistant with voice input (Web Speech API) and automatic translation of non‑English speech.
