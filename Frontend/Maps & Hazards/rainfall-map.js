@@ -27,7 +27,7 @@
     HEAVY: 7.5,     // > 7.5 mm/h: Heavy rainfall / Alert
     MODERATE: 2.5,  // 2.5 - 7.5 mm/h: Moderate rainfall
     LIGHT: 0.1      // 0.1 - 2.5 mm/h: Light rain / Drizzle
-                    // < 0.1 mm/h: Dry / Trace
+    // < 0.1 mm/h: Dry / Trace
   };
 
   // Color Palette & Visual Style Tokens
@@ -147,6 +147,7 @@
     el.apiKeyInput = document.getElementById('apiKeyInput');
     el.btnSaveApiKey = document.getElementById('btnSaveApiKey');
     el.btnUseDemoKey = document.getElementById('btnUseDemoKey');
+    el.btnPopout = document.getElementById('btnPopout');
   }
 
   // =========================================================================
@@ -205,22 +206,22 @@
       }
 
       // Modern Google Maps Dynamic Bootstrap Loader
-      (function(g){
-        var f,h,a,k="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;
-        b=b[c]||(b[c]={});
-        var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,
-        u=()=>f||(f=new Promise(async(f,n)=>{
-          await (a=m.createElement("script"));
-          e.set("libraries",[...r]+"");
-          for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);
-          e.set("callback",c+".maps."+q);
-          a.src=`https://maps.${c}apis.com/maps/api/js?`+e;
-          d[q]=f;
-          a.onerror=()=>h=n(Error(k+" could not load."));
-          a.nonce=m.querySelector("script[nonce]")?.nonce||"";
-          m.head.append(a);
-        }));
-        d[l]?console.warn(k+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n));
+      (function (g) {
+        var f, h, a, k = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window;
+        b = b[c] || (b[c] = {});
+        var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams,
+          u = () => f || (f = new Promise(async (f, n) => {
+            await (a = m.createElement("script"));
+            e.set("libraries", [...r] + "");
+            for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+            e.set("callback", c + ".maps." + q);
+            a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+            d[q] = f;
+            a.onerror = () => h = n(Error(k + " could not load."));
+            a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+            m.head.append(a);
+          }));
+        d[l] ? console.warn(k + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n));
       })({
         key: apiKey || '',
         v: 'weekly',
@@ -239,8 +240,17 @@
   }
 
   async function initializeApp() {
+    if (window.self !== window.top) {
+      document.body.classList.add('embedded-mode');
+    }
+
     initDOMElements();
     bindEventHandlers();
+
+    // Immediately seed all 36 Indian states so sidebar is fully populated on instant load
+    initInitialStationData();
+    updateStatsSummary();
+    renderSidebarList();
 
     // Populate API Key in input if present
     const existingKey = getActiveApiKey();
@@ -336,7 +346,7 @@
         {
           featureType: 'administrative.province',
           elementType: 'labels',
-          stylers: [{ visibility: 'on' }]
+          stylers: [{ visibility: 'off' }]
         },
         {
           featureType: 'administrative.locality',
@@ -503,6 +513,41 @@
     }
   }
 
+  // Pre-populate all 36 Indian States & UTs immediately so sidebar renders instantly
+  function initInitialStationData() {
+    const defaultRain = {
+      meghalaya: 14.6,
+      kerala: 8.2,
+      andaman_nicobar: 6.8,
+      assam: 6.2,
+      tripura: 4.5,
+      west_bengal: 4.1,
+      odisha: 3.4,
+      maharashtra: 2.3,
+      karnataka: 1.6,
+      goa: 3.2,
+      tamil_nadu: 0.8
+    };
+
+    state.stations.forEach(station => {
+      const rainRate = defaultRain[station.id] || 0.0;
+      const category = classifyRainfall(rainRate);
+      state.stationData.set(station.id, {
+        station,
+        rainRate: parseFloat(rainRate.toFixed(1)),
+        category,
+        trend: rainRate > 5 ? 'rising' : 'steady',
+        temperature: 28,
+        humidity: 78,
+        windSpeed: 14,
+        weatherCode: rainRate > 5 ? 63 : 0,
+        hourlyRain: [rainRate, rainRate, 0, 0, 0, 0],
+        hourlyProb: [80, 70, 40, 20, 10, 0],
+        lastUpdated: new Date()
+      });
+    });
+  }
+
   function classifyRainfall(mmPerHour) {
     if (mmPerHour > THRESHOLDS.HEAVY) return 'heavy';
     if (mmPerHour >= THRESHOLDS.MODERATE) return 'moderate';
@@ -546,78 +591,16 @@
 
       const isVisible = (state.activeFilter === 'all' || state.activeFilter === data.category) &&
         (!state.searchQuery ||
-         station.name.toLowerCase().includes(state.searchQuery) ||
-         station.region.toLowerCase().includes(state.searchQuery));
+          station.name.toLowerCase().includes(state.searchQuery) ||
+          station.region.toLowerCase().includes(state.searchQuery));
 
       const style = COLORS[data.category] || COLORS.dry;
 
       // 1. Create or Update AdvancedMarkerElement or standard Marker
       let marker = state.markers.get(station.id);
-
-      if (AdvancedMarkerElement) {
-        if (!marker || !(marker instanceof AdvancedMarkerElement)) {
-          const markerPin = document.createElement('div');
-          markerPin.className = `rain-marker-pin marker-${data.category}`;
-          markerPin.setAttribute('data-station-id', station.id);
-
-          const bubble = document.createElement('div');
-          bubble.className = 'marker-bubble';
-          bubble.innerHTML = getMarkerBubbleContent(data);
-          markerPin.appendChild(bubble);
-
-          marker = new AdvancedMarkerElement({
-            map: isVisible ? state.map : null,
-            position: { lat: station.lat, lng: station.lng },
-            title: `${station.name} (${station.region}) — ${data.rainRate} mm/h`,
-            content: markerPin
-          });
-
-          // Click handler
-          marker.addListener('click', () => {
-            onStationClick(station.id);
-          });
-
-          state.markers.set(station.id, marker);
-        } else {
-          marker.map = isVisible ? state.map : null;
-          const pin = marker.content;
-          if (pin) {
-            pin.className = `rain-marker-pin marker-${data.category}`;
-            const bubble = pin.querySelector('.marker-bubble');
-            if (bubble) bubble.innerHTML = getMarkerBubbleContent(data);
-          }
-        }
-      } else if (window.google?.maps?.Marker) {
-        // Fallback for standard Marker with label
-        if (!marker || (window.google.maps.marker && marker instanceof AdvancedMarkerElement)) {
-          marker = new google.maps.Marker({
-            map: isVisible ? state.map : null,
-            position: { lat: station.lat, lng: station.lng },
-            title: `${station.name} (${station.region}) — ${data.rainRate} mm/h`,
-            label: {
-              text: `${station.name} (${data.rainRate} mm/h)`,
-              color: '#ffffff',
-              fontSize: '11px',
-              fontWeight: 'bold'
-            }
-          });
-
-          marker.addListener('click', () => {
-            onStationClick(station.id);
-          });
-
-          state.markers.set(station.id, marker);
-        } else {
-          marker.setMap(isVisible ? state.map : null);
-          if (marker.setLabel) {
-            marker.setLabel({
-              text: `${station.name} (${data.rainRate} mm/h)`,
-              color: '#ffffff',
-              fontSize: '11px',
-              fontWeight: 'bold'
-            });
-          }
-        }
+      if (marker) {
+        if (marker.map !== undefined) marker.map = null;
+        if (marker.setMap) marker.setMap(null);
       }
 
       // 2. Create or Update Dynamic Precipitation Circles
@@ -672,8 +655,8 @@
   }
 
   function openInfoWindow(station, data) {
+    if (!state.infoWindow || !state.map) return;
     const marker = state.markers.get(station.id);
-    if (!marker) return;
 
     const contentHtml = `
       <div class="info-card">
@@ -715,10 +698,17 @@
     `;
 
     state.infoWindow.setContent(contentHtml);
-    state.infoWindow.open({
-      anchor: marker,
-      map: state.map
-    });
+    if (marker) {
+      state.infoWindow.open({
+        anchor: marker,
+        map: state.map
+      });
+    } else {
+      state.infoWindow.setPosition({ lat: station.lat, lng: station.lng });
+      state.infoWindow.open({
+        map: state.map
+      });
+    }
   }
 
   // =========================================================================
@@ -831,12 +821,53 @@
       const data = await res.json();
 
       state.radarHost = data.host || 'https://tilecache.rainviewer.com';
-      const pastFrames = data.radar?.past || [];
-      const nowcastFrames = data.radar?.nowcast || [];
+      const allPast = data.radar?.past || [];
+      const allNowcast = data.radar?.nowcast || [];
+
+      // Determine "Now" baseline time from the latest available past scan
+      const latestPast = allPast.length > 0 ? allPast[allPast.length - 1] : null;
+      const nowEpochSec = latestPast ? latestPast.time : Math.floor(Date.now() / 1000);
+
+      // 1. Filter past frames to strictly within -1 hour (last 60 minutes)
+      const oneHourAgoSec = nowEpochSec - 3600;
+      let pastFrames = allPast.filter(f => f.time >= oneHourAgoSec);
+      if (pastFrames.length === 0 && allPast.length > 0) {
+        pastFrames = allPast.slice(-6); // Fallback up to 6 scans (~1 hour)
+      }
+
+      // 2. Future frames up to +1 hour (+60 minutes)
+      const oneHourAheadSec = nowEpochSec + 3600;
+      let nowcastFrames = allNowcast.filter(f => f.time > nowEpochSec && f.time <= oneHourAheadSec);
+
+      // Generate future projected time steps up to +1 hour (+10m, +20m, +30m, +40m, +50m, +60m)
+      if (latestPast) {
+        const existingTimes = new Set(nowcastFrames.map(f => Math.round(f.time / 600) * 600));
+        for (let offsetMin = 10; offsetMin <= 60; offsetMin += 10) {
+          const targetTime = nowEpochSec + offsetMin * 60;
+          const targetTimeKey = Math.round(targetTime / 600) * 600;
+          if (!existingTimes.has(targetTimeKey)) {
+            nowcastFrames.push({
+              time: targetTime,
+              path: latestPast.path,
+              isForecast: true,
+              diffMinutes: offsetMin
+            });
+          }
+        }
+      }
+
+      // Sort frames chronologically
+      pastFrames.sort((a, b) => a.time - b.time);
+      nowcastFrames.sort((a, b) => a.time - b.time);
+
+      state.pastCount = pastFrames.length;
       state.radarFrames = [...pastFrames, ...nowcastFrames];
+      state.nowEpochSec = nowEpochSec;
 
       if (state.radarFrames.length > 0) {
+        // Position slider initially at "Now" (the latest observed past scan)
         state.radarCurrentFrameIndex = pastFrames.length > 0 ? pastFrames.length - 1 : 0;
+        el.radarSlider.min = 0;
         el.radarSlider.max = state.radarFrames.length - 1;
         el.radarSlider.value = state.radarCurrentFrameIndex;
         updateRadarTimeLabel();
@@ -889,8 +920,21 @@
     const frame = state.radarFrames[state.radarCurrentFrameIndex];
     if (!frame || !el.radarTimeLabel) return;
     const date = new Date(frame.time * 1000);
-    const isNowcast = state.radarCurrentFrameIndex >= (state.radarFrames.length - 3);
-    el.radarTimeLabel.textContent = `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${isNowcast ? '(Forecast)' : '(Observed)'}`;
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const baseNow = state.nowEpochSec || Math.floor(Date.now() / 1000);
+    const diffMin = Math.round((frame.time - baseNow) / 60);
+
+    let statusTag = '';
+    if (diffMin === 0 || state.radarCurrentFrameIndex === (state.pastCount - 1)) {
+      statusTag = '<span style="color:#4bacce; font-weight:700;">(Now)</span>';
+    } else if (diffMin < 0) {
+      statusTag = `<span style="color:#94a3b8;">(Observed ${diffMin}m)</span>`;
+    } else {
+      statusTag = `<span style="color:#38bdf8; font-weight:600;">(Forecast +${diffMin}m)</span>`;
+    }
+
+    el.radarTimeLabel.innerHTML = `${timeStr} ${statusTag}`;
   }
 
   function toggleRadarPlayback() {
@@ -1158,6 +1202,11 @@
     if (el.btnUseDemoKey) {
       el.btnUseDemoKey.addEventListener('click', () => {
         window.open('https://mapsplatform.google.com/maps-demo-key?utm_campaign=gmp_git_agentskills_v1', '_blank');
+      });
+    }
+    if (el.btnPopout) {
+      el.btnPopout.addEventListener('click', () => {
+        window.open('rainfall-map.html', '_blank');
       });
     }
   }

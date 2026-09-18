@@ -474,6 +474,7 @@ function gotoView(name){
   // actually unhidden, or it stays blank/broken from being sized while
   // .panel[hidden] made the canvas's box 0x0 (e.g. right after enterApp()).
   if(name==='climate') renderClimate();
+  if(name==='map') renderMap();
 }
 
 function currentCityData(){
@@ -1131,8 +1132,8 @@ function generateReply(q){
 }
 
 const LAYER_INFO = {
-  radar: { text:'Radar shows a moderate-to-heavy rain band moving northeast at ~18 km/h, expected to reach central districts within 40 minutes.', legend:[['Light rain','#6d84c2'],['Moderate','#4bacce'],['Heavy','#c98f4e'],['Severe','#c9556a']] },
-  lightning: { text:'12 lightning strikes detected in the last 10 minutes, clustered southwest of the city centre. Cell tracked moving northeast.', legend:[['Strike (recent)','#e0c168'],['Strike cluster','#c98f4e']] },
+  radar: { text:'Live Doppler radar & rainfall precipitation intensity engine across India. Features real-time RainViewer radar satellite overlay, past-to-future nowcast timeline, and 36 meteorological state/UT tracking.', legend:[['Light rain','#6d84c2'],['Moderate','#4bacce'],['Heavy','#c98f4e'],['Severe','#c9556a']] },
+  lightning: { text:'Real-time lightning detection & convective storm cell engine across India. Features strike frequency nowcasting, CAPE instability mapping, and live thunderstorm trajectory tracking.', legend:[['Severe cluster','#ef4444'],['Active cell','#f59e0b'],['Elevated risk','#06b6d4'],['Calm / stable','#64748b']] },
   flood: { text:'Flood probability model flags 3 wards as Moderate–High risk in the next 3 hours based on rainfall, drainage and river-level fusion.', legend:[['Low risk','#45a481'],['Moderate','#c98f4e'],['High','#c9556a']] },
   wind: { text:'Sustained wind 14–19 km/h from the southwest, gusting to 28 km/h near the coast.', legend:[['Calm','#6d84c2'],['Breezy','#4bacce'],['Gusty','#c98f4e']] },
   sos: { text:'2 active SOS incidents in the last hour, both triaged. Heatmap reflects incident density, not individual identities.', legend:[['Low density','#45a481'],['Elevated','#c98f4e'],['Critical cluster','#c9556a']] },
@@ -1148,6 +1149,65 @@ function renderMap(){
 }
 function drawMapLayer(layer){
   const svg = $('#mapSvg');
+  const stage = $('#mapStage');
+  
+  let rainfallIframe = $('#rainfallIframe');
+  if (!rainfallIframe) {
+    rainfallIframe = document.createElement('iframe');
+    rainfallIframe.id = 'rainfallIframe';
+    rainfallIframe.src = 'Maps%20&%20Hazards/rainfall-map.html';
+    rainfallIframe.style.width = '100%';
+    rainfallIframe.style.height = '100%';
+    rainfallIframe.style.border = 'none';
+    rainfallIframe.style.position = 'absolute';
+    rainfallIframe.style.top = '0';
+    rainfallIframe.style.left = '0';
+    rainfallIframe.style.zIndex = '10';
+    rainfallIframe.style.borderRadius = 'var(--radius-lg)';
+    stage.appendChild(rainfallIframe);
+  }
+
+  let lightningIframe = $('#lightningIframe');
+  if (layer === 'lightning' && !lightningIframe) {
+    lightningIframe = document.createElement('iframe');
+    lightningIframe.id = 'lightningIframe';
+    lightningIframe.src = 'Maps%20&%20Hazards/lightning-map.html';
+    lightningIframe.style.width = '100%';
+    lightningIframe.style.height = '100%';
+    lightningIframe.style.border = 'none';
+    lightningIframe.style.position = 'absolute';
+    lightningIframe.style.top = '0';
+    lightningIframe.style.left = '0';
+    lightningIframe.style.zIndex = '10';
+    lightningIframe.style.borderRadius = 'var(--radius-lg)';
+    stage.appendChild(lightningIframe);
+  }
+
+  if (layer === 'radar') {
+    svg.style.display = 'none';
+    rainfallIframe.style.display = 'block';
+    if (lightningIframe) lightningIframe.style.display = 'none';
+    stage.style.height = window.innerWidth < 640 ? '520px' : '620px';
+    if ($('#mapLegend')) $('#mapLegend').style.display = 'none';
+    if ($('.map-time-slider')) $('.map-time-slider').style.display = 'none';
+    return;
+  } else if (layer === 'lightning') {
+    svg.style.display = 'none';
+    rainfallIframe.style.display = 'none';
+    if (lightningIframe) lightningIframe.style.display = 'block';
+    stage.style.height = window.innerWidth < 640 ? '520px' : '620px';
+    if ($('#mapLegend')) $('#mapLegend').style.display = 'none';
+    if ($('.map-time-slider')) $('.map-time-slider').style.display = 'none';
+    return;
+  } else {
+    svg.style.display = 'block';
+    rainfallIframe.style.display = 'none';
+    if (lightningIframe) lightningIframe.style.display = 'none';
+    stage.style.height = '';
+    if ($('#mapLegend')) $('#mapLegend').style.display = 'flex';
+    if ($('.map-time-slider')) $('.map-time-slider').style.display = 'flex';
+  }
+
   svg.innerHTML = '';
   const ns = 'http://www.w3.org/2000/svg';
   const outline = document.createElementNS(ns,'path');
@@ -1189,7 +1249,8 @@ function initMap(){
   });
   $('#mapTimeRange').addEventListener('input', (e)=>{
     const v = +e.target.value;
-    const label = v<3 ? `Observed ${3-v}h ago` : v===3 ? 'Now' : `Forecast +${v-3}h`;
+    const minDiff = (v - 3) * 20;
+    const label = minDiff < 0 ? `Observed ${Math.abs(minDiff)}m ago` : minDiff === 0 ? 'Now' : `Forecast +${minDiff}m`;
     $('#mapDetailText').textContent = `[${label}] ` + LAYER_INFO[currentLayer].text;
   });
 }

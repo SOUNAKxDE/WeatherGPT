@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-  <title>Live Rainfall Radar & Map — WeatherGPT India</title>
-  <meta name="description" content="Real-time rainfall radar and intensity map with separate color categorizations for Heavy, Moderate, and Light precipitation across all 36 Indian states and union territories powered by Google Maps.">
+  <title>Live Lightning & Thunderstorm Tracker — WeatherGPT India</title>
+  <meta name="description" content="Real-time lightning detection, strike frequency nowcasting, and thunderstorm cell tracking across all 36 Indian states and union territories powered by Google Maps.">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -17,14 +17,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="rainfall-map.css">
+  <link rel="stylesheet" href="lightning-map.css">
 </head>
 <body>
 
   <!-- ======================================================================
        Header Bar (Aligned & Proportional Controls)
        ====================================================================== -->
-  <header class="rainfall-header">
+  <header class="lightning-header">
     <div class="brand-section">
       <a href="index.html" class="back-link" title="Return to WeatherGPT dashboard">
         <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -37,45 +37,51 @@
         <span class="brand-name">WeatherGPT</span>
         <span class="badge-live">
           <span class="pulse-dot"></span>
-          INDIA RADAR
+          LIVE LIGHTNING
         </span>
       </div>
     </div>
 
-    <!-- Quick Stats Category Filter Banner (Proportional, Refined Buttons) -->
+    <!-- Quick Stats Category Filter Banner -->
     <div class="stats-banner">
       <button class="stat-pill pill-all active" id="statAll" type="button" title="View all 36 tracked Indian states & union territories">
         <span>All</span>
         <span class="count" id="countAll">36</span>
       </button>
-      <button class="stat-pill pill-heavy" id="statHeavy" type="button" title="Heavy rainfall (> 7.5 mm/h)">
+      <button class="stat-pill pill-severe" id="statSevere" type="button" title="Severe strike frequency (> 25 strikes / severe storms)">
         <span class="indicator"></span>
-        <span>Heavy</span>
-        <span class="count" id="countHeavy">0</span>
+        <span>Severe</span>
+        <span class="count" id="countSevere">0</span>
       </button>
-      <button class="stat-pill pill-moderate" id="statModerate" type="button" title="Moderate rainfall (2.5 - 7.5 mm/h)">
+      <button class="stat-pill pill-active" id="statActive" type="button" title="Active lightning cells (10 - 25 strikes)">
         <span class="indicator"></span>
-        <span>Moderate</span>
-        <span class="count" id="countModerate">0</span>
+        <span>Active</span>
+        <span class="count" id="countActive">0</span>
       </button>
-      <button class="stat-pill pill-light" id="statLight" type="button" title="Light rainfall (0.1 - 2.5 mm/h)">
+      <button class="stat-pill pill-elevated" id="statElevated" type="button" title="Elevated / Isolated strikes (1 - 10 strikes)">
         <span class="indicator"></span>
-        <span>Light</span>
-        <span class="count" id="countLight">0</span>
+        <span>Elevated</span>
+        <span class="count" id="countElevated">0</span>
       </button>
     </div>
 
-    <!-- Actions: Auto-refresh, Manual Refresh & Key Settings -->
+    <!-- Actions: Auto-refresh, Manual Refresh, Popout & Key Settings -->
     <div class="header-actions">
       <div class="refresh-container">
         <span>Auto-refresh:</span>
         <span class="timer-text" id="refreshTimer">60s</span>
       </div>
-      <button class="btn-action" id="btnRefresh" title="Fetch fresh rainfall data right now">
+      <button class="btn-action" id="btnRefresh" title="Fetch fresh lightning metrics right now">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
         </svg>
         <span>Refresh</span>
+      </button>
+      <button class="btn-action" id="btnPopout" title="Open Map in new tab" style="display:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+        <span>Full Screen</span>
       </button>
       <button class="btn-action btn-accent" id="btnOpenKeyModal" title="Configure Google Maps API Key or Demo Key">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -89,10 +95,10 @@
   <!-- ======================================================================
        Main Content: Sidebar + Google Maps Canvas
        ====================================================================== -->
-  <main class="rainfall-main">
+  <main class="lightning-main">
     
     <!-- Left Sidebar: Places Feed & Search -->
-    <aside class="rainfall-sidebar" id="rainfallSidebar">
+    <aside class="lightning-sidebar" id="lightningSidebar">
       <div class="sidebar-search-box">
         <div class="search-input-wrapper">
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -102,7 +108,7 @@
         </div>
 
         <div style="display: flex;">
-          <button class="btn-action btn-locate" id="btnLocateMe" title="Find rainfall metrics for my current GPS location">
+          <button class="btn-action btn-locate" id="btnLocateMe" title="Check lightning proximity for my current GPS location">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><circle cx="12" cy="12" r="3"/>
             </svg>
@@ -113,15 +119,15 @@
         <!-- Quick Filter Buttons -->
         <div class="quick-filter-row">
           <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="heavy"><span class="filter-dot dot-heavy"></span>Heavy</button>
-          <button class="filter-btn" data-filter="moderate"><span class="filter-dot dot-moderate"></span>Moderate</button>
-          <button class="filter-btn" data-filter="light"><span class="filter-dot dot-light"></span>Light</button>
+          <button class="filter-btn" data-filter="severe"><span class="filter-dot dot-severe"></span>Severe</button>
+          <button class="filter-btn" data-filter="active"><span class="filter-dot dot-active"></span>Active</button>
+          <button class="filter-btn" data-filter="elevated"><span class="filter-dot dot-elevated"></span>Elevated</button>
         </div>
       </div>
 
       <!-- Places List Container -->
       <div class="sidebar-list-container" id="placesList">
-        <!-- Rendered dynamically by rainfall-map.js -->
+        <!-- Rendered dynamically by lightning-map.js -->
       </div>
 
       <!-- Sidebar Footer -->
@@ -144,61 +150,65 @@
         </div>
       </div>
 
-      <!-- Floating Zoom & Radar Status Indicator -->
-      <div class="zoom-radar-status" id="zoomRadarStatus">
+      <!-- Floating Status Indicator -->
+      <div class="zoom-radar-status" id="zoomLightningStatus">
         <span class="zoom-status-dot"></span>
-        <span class="zoom-status-text" id="zoomRadarText">Radar Active (Zoom 1–7)</span>
-        <button class="zoom-reset-btn" id="btnResetRadarZoom" title="Return to regional radar zoom level" style="display: none;">Zoom to Radar (z6)</button>
+        <span class="zoom-status-text" id="zoomLightningText">Lightning Strike Radar Active</span>
       </div>
 
       <!-- Legend Overlay (Bottom Left) -->
       <div class="map-legend-overlay">
-        <div class="legend-title">Precipitation Intensity</div>
+        <div class="legend-title">Lightning Activity</div>
         <div class="legend-items">
           <div class="legend-row">
             <div class="legend-left">
               <div class="legend-color-box" style="background: #ef4444;"></div>
-              <span>Heavy</span>
+              <span>Severe Cluster</span>
             </div>
-            <span class="legend-range">&gt; 7.5 mm/h</span>
+            <span class="legend-range">&gt; 25 strikes / 10m</span>
           </div>
           <div class="legend-row">
             <div class="legend-left">
               <div class="legend-color-box" style="background: #f59e0b;"></div>
-              <span>Moderate</span>
+              <span>Active Cells</span>
             </div>
-            <span class="legend-range">2.5 – 7.5 mm/h</span>
+            <span class="legend-range">10 – 25 strikes</span>
           </div>
           <div class="legend-row">
             <div class="legend-left">
-              <div class="legend-color-box" style="background: #10b981;"></div>
-              <span>Light</span>
+              <div class="legend-color-box" style="background: #06b6d4;"></div>
+              <span>Elevated Risk</span>
             </div>
-            <span class="legend-range">0.1 – 2.5 mm/h</span>
+            <span class="legend-range">1 – 10 strikes</span>
           </div>
           <div class="legend-row">
             <div class="legend-left">
               <div class="legend-color-box" style="background: #64748b;"></div>
-              <span>Dry / Trace</span>
+              <span>Calm / Stable</span>
             </div>
-            <span class="legend-range">&lt; 0.1 mm/h</span>
+            <span class="legend-range">0 strikes</span>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Floating Doppler Radar Player Bar -->
+      <!-- Bottom Floating Lightning Timeline Player Bar -->
       <div class="radar-timeline-player">
-        <button class="radar-btn" id="btnPlayRadar" title="Play / Pause radar animation">▶</button>
+        <button class="radar-btn" id="btnPlayLightning" title="Play / Pause strike animation">▶</button>
         <div class="radar-slider-wrap">
           <div class="radar-slider-header">
-            <span>Doppler Radar Live Satellite Overlay (India)</span>
-            <span id="radarTimeLabel">Loading radar...</span>
+            <span>⚡ Real-Time Lightning & Convective Storm Tracking</span>
+            <span id="lightningTimeLabel">Loading strikes...</span>
           </div>
-          <input type="range" class="radar-slider" id="radarSlider" min="0" max="10" value="0">
+          <input type="range" class="radar-slider" id="lightningSlider" min="0" max="12" value="6">
+          <div class="radar-range-markers" style="display:flex; justify-content:space-between; font-size:0.68rem; color:var(--text-dim); margin-top:2px; padding:0 2px;">
+            <span>−1h</span>
+            <span style="color:var(--accent); font-weight:600;">NOW</span>
+            <span>+1h (fcst)</span>
+          </div>
         </div>
         <label class="radar-toggle-wrap">
-          <input type="checkbox" id="radarToggle" checked>
-          <span>Radar Layer</span>
+          <input type="checkbox" id="lightningToggle" checked>
+          <span>Strikes Layer</span>
         </label>
       </div>
 
@@ -245,6 +255,6 @@
   </div>
 
   <!-- Main JavaScript Engine -->
-  <script src="rainfall-map.js"></script>
+  <script src="lightning-map.js"></script>
 </body>
 </html>
